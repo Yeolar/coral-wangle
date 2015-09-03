@@ -39,16 +39,10 @@ if(APPLE)
 endif()
 
 # Required packages
+find_package(Coral REQUIRED)
+set(WANGLE_HAVE_CORAL ${CORAL_FOUND})
 find_package(Boost REQUIRED COMPONENTS system thread)
 set(WANGLE_HAVE_BOOST ${Boost_FOUND})
-if(APPLE)
-    set(WANGLE_LINK_BOOST
-        boost_system-mt boost_thread-mt)
-else()
-    set(WANGLE_LINK_BOOST
-        boost_system boost_thread)
-endif()
-
 find_package(GFlags REQUIRED)
 set(WANGLE_HAVE_LIBGFLAGS ${GFLAGS_FOUND})
 find_package(Glog)
@@ -66,10 +60,11 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 # Link libraries
 link_libraries(
-    ${WANGLE_LINK_BOOST}
-    gflags
-    glog
-    ssl
+    ${CORAL_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${GFLAGS_LIBRARIES}
+    ${GLOG_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
 )
 
 # Check and setup configurations
@@ -154,6 +149,5 @@ install(TARGETS wangle_shared
 # Test
 if(GTEST_FOUND)
     enable_testing()
-    #    add_subdirectory(coral/test)
 endif()
 

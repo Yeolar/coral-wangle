@@ -46,6 +46,7 @@ void FileRegion::FileWriteRequest::destroy() {
 }
 
 bool FileRegion::FileWriteRequest::performWrite() {
+#ifdef __linux__
   if (!started_) {
     start();
     return true;
@@ -65,6 +66,9 @@ bool FileRegion::FileWriteRequest::performWrite() {
   bytesInPipe_ -= spliced;
   bytesWritten(spliced);
   return true;
+#else
+  throw std::runtime_error("unimplemented");
+#endif
 }
 
 void FileRegion::FileWriteRequest::consume() {
@@ -180,6 +184,7 @@ FileRegion::FileWriteRequest::FileReadHandler::~FileReadHandler() {
 
 void FileRegion::FileWriteRequest::FileReadHandler::handlerReady(
     uint16_t events) noexcept {
+#ifdef __linux__
   CHECK(events & EventHandler::WRITE);
   if (bytesToRead_ == 0) {
     unregisterHandler();
@@ -212,6 +217,9 @@ void FileRegion::FileWriteRequest::FileReadHandler::handlerReady(
       return;
     }
   }
+#else
+  throw std::runtime_error("unimplemented");
+#endif
 }
 
 } // wangle
