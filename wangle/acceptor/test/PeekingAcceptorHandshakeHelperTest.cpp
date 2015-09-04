@@ -8,7 +8,7 @@
 
 using namespace coral;
 using namespace coral::test;
-using namespace coral::wangle;
+using namespace wangle;
 using namespace testing;
 
 template<size_t N>

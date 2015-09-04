@@ -53,12 +53,14 @@ set(WANGLE_HAVE_LIBSSL ${OPENSSL_FOUND})
 # Optional packages
 find_package(GTest)
 set(WANGLE_HAVE_LIBGTEST ${GTEST_FOUND})
+find_package(GMock)
+set(WANGLE_HAVE_LIBGMOCK ${GMOCK_FOUND})
 
 # Setup environment
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 # Link libraries
 link_libraries(
@@ -149,7 +151,16 @@ install(TARGETS wangle_shared
 )
 
 # Test
-if(GTEST_FOUND)
+if(GTEST_FOUND AND GMOCK_FOUND)
     enable_testing()
+    add_subdirectory(wangle/acceptor/test)
+    add_subdirectory(wangle/bootstrap/test)
+    add_subdirectory(wangle/channel/test)
+    #add_subdirectory(wangle/channel/broadcast/test)
+    add_subdirectory(wangle/codec/test)
+    add_subdirectory(wangle/concurrent/test)
+    #add_subdirectory(wangle/service/test)
+    add_subdirectory(wangle/ssl/test)
+    add_subdirectory(wangle/deprecated/rx/test)
 endif()
 
