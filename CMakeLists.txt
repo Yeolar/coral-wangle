@@ -7,10 +7,10 @@ if(APPLE)
     set(CMAKE_C_COMPILER clang)
     set(CMAKE_CXX_COMPILER clang++)
 else()
-    set(CMAKE_C_COMPILER gcc-4.8)
-    set(CMAKE_CXX_COMPILER g++-4.8)
+    # required GCC >= 4.8
+    set(CMAKE_C_COMPILER gcc)
+    set(CMAKE_CXX_COMPILER g++)
 endif()
-set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 
 # Define project
 project(wangle)
@@ -45,9 +45,9 @@ find_package(Boost REQUIRED COMPONENTS system thread)
 set(WANGLE_HAVE_BOOST ${Boost_FOUND})
 find_package(GFlags REQUIRED)
 set(WANGLE_HAVE_LIBGFLAGS ${GFLAGS_FOUND})
-find_package(Glog)
+find_package(Glog REQUIRED)
 set(WANGLE_HAVE_LIBGLOG ${GLOG_FOUND})
-find_package(OpenSSL)
+find_package(OpenSSL REQUIRED)
 set(WANGLE_HAVE_LIBSSL ${OPENSSL_FOUND})
 
 # Optional packages
@@ -57,6 +57,8 @@ set(WANGLE_HAVE_LIBGTEST ${GTEST_FOUND})
 # Setup environment
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
+
+set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 
 # Link libraries
 link_libraries(
