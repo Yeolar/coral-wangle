@@ -27,5 +27,6 @@
 *.out
 *.app
 
-build_/
-sed-pattern
+/build/
+/build_/
+/sed-pattern
