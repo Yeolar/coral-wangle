@@ -1,5 +1,5 @@
-Wangle
-======
+Coral-Wangle
+============
 
 Coral-Wangle is a fork of facebook wangle, a C++ networking library.
 
