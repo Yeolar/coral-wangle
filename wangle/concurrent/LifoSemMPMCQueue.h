@@ -10,8 +10,8 @@
 
 #pragma once
 #include <wangle/concurrent/BlockingQueue.h>
-#include <coral/LifoSem.h>
-#include <coral/MPMCQueue.h>
+#include <folly/LifoSem.h>
+#include <folly/MPMCQueue.h>
 
 namespace wangle {
 
@@ -44,8 +44,8 @@ class LifoSemMPMCQueue : public BlockingQueue<T> {
   }
 
  private:
-  coral::LifoSem sem_;
-  coral::MPMCQueue<T> queue_;
+  folly::LifoSem sem_;
+  folly::MPMCQueue<T> queue_;
 };
 
 } // namespace wangle

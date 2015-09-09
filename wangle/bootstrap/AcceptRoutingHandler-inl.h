@@ -8,9 +8,9 @@ void AcceptRoutingHandler<Pipeline, R>::read(Context* ctx, void* conn) {
   populateAcceptors();
 
   uint64_t connId = nextConnId_++;
-  auto socket = std::shared_ptr<coral::AsyncSocket>(
-      reinterpret_cast<coral::AsyncSocket*>(conn),
-      coral::DelayedDestruction::Destructor());
+  auto socket = std::shared_ptr<folly::AsyncSocket>(
+      reinterpret_cast<folly::AsyncSocket*>(conn),
+      folly::DelayedDestruction::Destructor());
 
   // Create a new routing pipeline for this connection to read from
   // the socket until it parses the routing data
@@ -34,7 +34,7 @@ void AcceptRoutingHandler<Pipeline, R>::onRoutingData(
 
   // Fetch the socket from the pipeline and pause reading from the
   // socket
-  auto socket = std::dynamic_pointer_cast<coral::AsyncSocket>(
+  auto socket = std::dynamic_pointer_cast<folly::AsyncSocket>(
       routingPipeline->getTransport());
   routingPipeline->transportInactive();
   socket->detachEventBase();
@@ -45,7 +45,7 @@ void AcceptRoutingHandler<Pipeline, R>::onRoutingData(
 
   // Switch to the new acceptor's thread
   auto mwRoutingData =
-      coral::makeMoveWrapper<typename RoutingDataHandler<R>::RoutingData>(
+      folly::makeMoveWrapper<typename RoutingDataHandler<R>::RoutingData>(
           std::move(routingData));
   acceptor->getEventBase()->runInEventBaseThread([=]() mutable {
     socket->attachEventBase(acceptor->getEventBase());
@@ -53,7 +53,7 @@ void AcceptRoutingHandler<Pipeline, R>::onRoutingData(
     auto pipeline =
         childPipelineFactory_->newPipeline(socket, mwRoutingData->routingData);
     auto pipelinePtr = pipeline.get();
-    coral::DelayedDestruction::DestructorGuard dg(pipelinePtr);
+    folly::DelayedDestruction::DestructorGuard dg(pipelinePtr);
 
     auto connection = new typename ServerAcceptor<Pipeline>::ServerConnection(
         std::move(pipeline));

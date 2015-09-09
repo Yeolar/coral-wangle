@@ -10,19 +10,19 @@
 
 #include <wangle/concurrent/IOThreadPoolExecutor.h>
 
-#include <coral/MoveWrapper.h>
+#include <folly/MoveWrapper.h>
 #include <glog/logging.h>
 
-#include <coral/detail/MemoryIdler.h>
+#include <folly/detail/MemoryIdler.h>
 
 namespace wangle {
 
-using coral::detail::MemoryIdler;
-using coral::AsyncTimeout;
-using coral::EventBase;
-using coral::EventBaseManager;
-using coral::Func;
-using coral::RWSpinLock;
+using folly::detail::MemoryIdler;
+using folly::AsyncTimeout;
+using folly::EventBase;
+using folly::EventBaseManager;
+using folly::Func;
+using folly::RWSpinLock;
 
 /* Class that will free jemalloc caches and madvise the stack away
  * if the event loop is unused for some period of time
@@ -88,7 +88,7 @@ void IOThreadPoolExecutor::add(
   }
   auto ioThread = pickThread();
 
-  auto moveTask = coral::makeMoveWrapper(
+  auto moveTask = folly::makeMoveWrapper(
       Task(std::move(func), expiration, std::move(expireCallback)));
   auto wrappedFunc = [ioThread, moveTask] () mutable {
     runTask(ioThread, std::move(*moveTask));

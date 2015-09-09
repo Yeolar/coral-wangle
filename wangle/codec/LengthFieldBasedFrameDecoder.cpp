@@ -10,8 +10,8 @@
 
 #include <wangle/codec/LengthFieldBasedFrameDecoder.h>
 
-using coral::IOBuf;
-using coral::IOBufQueue;
+using folly::IOBuf;
+using folly::IOBufQueue;
 
 namespace wangle {
 
@@ -49,16 +49,16 @@ bool LengthFieldBasedFrameDecoder::decode(Context* ctx,
 
   if (frameLength < lengthFieldEndOffset_) {
     buf.trimStart(lengthFieldEndOffset_);
-    ctx->fireReadException(coral::make_exception_wrapper<std::runtime_error>(
+    ctx->fireReadException(folly::make_exception_wrapper<std::runtime_error>(
                              "Frame too small"));
     return false;
   }
 
   if (frameLength > maxFrameLength_) {
     buf.trimStart(frameLength);
-    ctx->fireReadException(coral::make_exception_wrapper<std::runtime_error>(
+    ctx->fireReadException(folly::make_exception_wrapper<std::runtime_error>(
                              "Frame larger than " +
-                             coral::to<std::string>(maxFrameLength_)));
+                             folly::to<std::string>(maxFrameLength_)));
     return false;
   }
 
@@ -68,7 +68,7 @@ bool LengthFieldBasedFrameDecoder::decode(Context* ctx,
 
   if (initialBytesToStrip_ > frameLength) {
     buf.trimStart(frameLength);
-    ctx->fireReadException(coral::make_exception_wrapper<std::runtime_error>(
+    ctx->fireReadException(folly::make_exception_wrapper<std::runtime_error>(
                              "InitialBytesToSkip larger than frame"));
     return false;
   }
@@ -81,7 +81,7 @@ bool LengthFieldBasedFrameDecoder::decode(Context* ctx,
 
 uint64_t LengthFieldBasedFrameDecoder::getUnadjustedFrameLength(
   IOBufQueue& buf, int offset, int length, bool networkByteOrder) {
-  coral::io::Cursor c(buf.front());
+  folly::io::Cursor c(buf.front());
   uint64_t frameLength;
 
   c.skip(offset);

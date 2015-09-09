@@ -16,20 +16,20 @@ namespace wangle {
 template<size_t N>
 class PeekingAcceptorHandshakeHelper :
   public AcceptorHandshakeHelper,
-  public coral::AsyncTransportWrapper::ReadCallback {
+  public folly::AsyncTransportWrapper::ReadCallback {
   public:
     class Callback {
       public:
         virtual ~Callback() {}
 
-        virtual coral::Optional<SecureTransportType> getSecureTransportType(
+        virtual folly::Optional<SecureTransportType> getSecureTransportType(
             std::array<uint8_t, N> peekedBytes) = 0;
     };
 
     PeekingAcceptorHandshakeHelper(
-        coral::AsyncSSLSocket::UniquePtr sock,
+        folly::AsyncSSLSocket::UniquePtr sock,
         Acceptor* acceptor,
-        const coral::SocketAddress& clientAddr,
+        const folly::SocketAddress& clientAddr,
         std::chrono::steady_clock::time_point acceptTime,
         TransportInfo tinfo,
         Callback* peekCallback) :
@@ -45,7 +45,7 @@ class PeekingAcceptorHandshakeHelper :
     void start() noexcept override {
       CHECK_EQ(
           socket_->getSSLState(),
-          coral::AsyncSSLSocket::SSLStateEnum::STATE_UNENCRYPTED);
+          folly::AsyncSSLSocket::SSLStateEnum::STATE_UNENCRYPTED);
       socket_->setPeek(true);
       socket_->setReadCB(this);
     }
@@ -58,7 +58,7 @@ class PeekingAcceptorHandshakeHelper :
     }
 
     void readDataAvailable(size_t len) noexcept override {
-      coral::DelayedDestruction::DestructorGuard dg(this);
+      folly::DelayedDestruction::DestructorGuard dg(this);
 
       // Peek does not advance the socket buffer, so we will
       // always re-read the existing bytes, so we should only
@@ -74,10 +74,10 @@ class PeekingAcceptorHandshakeHelper :
       if (!secureTransportType) {
         // could not get a transport, report error.
         auto type =
-         coral::AsyncSocketException::AsyncSocketExceptionType::CORRUPTED_DATA;
+         folly::AsyncSocketException::AsyncSocketExceptionType::CORRUPTED_DATA;
         return handshakeErr(
             socket_.get(),
-            coral::AsyncSocketException(type, "Unrecognized protocol"));
+            folly::AsyncSocketException(type, "Unrecognized protocol"));
       }
 
       if (*secureTransportType == SecureTransportType::TLS) {
@@ -95,13 +95,13 @@ class PeekingAcceptorHandshakeHelper :
 
     void readEOF() noexcept override {
       auto type =
-        coral::AsyncSocketException::AsyncSocketExceptionType::END_OF_FILE;
+        folly::AsyncSocketException::AsyncSocketExceptionType::END_OF_FILE;
       handshakeErr(
           socket_.get(),
-          coral::AsyncSocketException(type, "Unexpected EOF"));
+          folly::AsyncSocketException(type, "Unexpected EOF"));
     }
 
-    void readErr(const coral::AsyncSocketException& ex) noexcept override {
+    void readErr(const folly::AsyncSocketException& ex) noexcept override {
       handshakeErr(socket_.get(), ex);
     }
 

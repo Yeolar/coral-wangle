@@ -17,14 +17,14 @@ namespace wangle {
 /*
  * StringCodec converts a pipeline from IOBufs to std::strings.
  */
-class StringCodec : public Handler<std::unique_ptr<coral::IOBuf>, std::string,
-                                   std::string, std::unique_ptr<coral::IOBuf>> {
+class StringCodec : public Handler<std::unique_ptr<folly::IOBuf>, std::string,
+                                   std::string, std::unique_ptr<folly::IOBuf>> {
  public:
   typedef typename Handler<
-   std::unique_ptr<coral::IOBuf>, std::string,
-   std::string, std::unique_ptr<coral::IOBuf>>::Context Context;
+   std::unique_ptr<folly::IOBuf>, std::string,
+   std::string, std::unique_ptr<folly::IOBuf>>::Context Context;
 
-  void read(Context* ctx, std::unique_ptr<coral::IOBuf> buf) override {
+  void read(Context* ctx, std::unique_ptr<folly::IOBuf> buf) override {
     if (buf) {
       buf->coalesce();
       std::string data((const char*)buf->data(), buf->length());
@@ -32,8 +32,8 @@ class StringCodec : public Handler<std::unique_ptr<coral::IOBuf>, std::string,
     }
   }
 
-  coral::Future<coral::Unit> write(Context* ctx, std::string msg) override {
-    auto buf = coral::IOBuf::copyBuffer(msg.data(), msg.length());
+  folly::Future<folly::Unit> write(Context* ctx, std::string msg) override {
+    auto buf = folly::IOBuf::copyBuffer(msg.data(), msg.length());
     return ctx->fireWrite(std::move(buf));
   }
 };

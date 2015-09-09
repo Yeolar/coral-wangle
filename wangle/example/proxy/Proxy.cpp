@@ -14,7 +14,7 @@
 #include <wangle/bootstrap/ServerBootstrap.h>
 #include <wangle/channel/AsyncSocketHandler.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 DEFINE_int32(port, 1080, "proxy server port");

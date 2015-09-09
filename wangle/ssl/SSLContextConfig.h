@@ -10,7 +10,7 @@
 #pragma once
 
 #include <string>
-#include <coral/io/async/SSLContext.h>
+#include <folly/io/async/SSLContext.h>
 #include <vector>
 
 /**
@@ -68,8 +68,8 @@ struct SSLContextConfig {
   typedef std::function<bool(char const* server_name)> SNINoMatchFn;
 
   std::vector<CertificateInfo> certificates;
-  coral::SSLContext::SSLVersion sslVersion{
-    coral::SSLContext::TLSv1};
+  folly::SSLContext::SSLVersion sslVersion{
+    folly::SSLContext::TLSv1};
   bool sessionCacheEnabled{true};
   bool sessionTicketEnabled{true};
   bool clientHelloParsingEnabled{false};
@@ -84,7 +84,7 @@ struct SSLContextConfig {
   // Ciphers to negotiate if TLS version >= 1.1
   std::string tls11Ciphers{""};
   // Weighted lists of NPN strings to advertise
-  std::list<coral::SSLContext::NextProtocolsItem>
+  std::list<folly::SSLContext::NextProtocolsItem>
       nextProtocols;
   bool isLocalPrivateKey{true};
   // Should this SSLContextConfig be the default for SNI purposes

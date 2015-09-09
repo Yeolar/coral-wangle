@@ -15,9 +15,9 @@
 #include <wangle/codec/LengthFieldPrepender.h>
 #include <wangle/codec/LineBasedFrameDecoder.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
-using namespace coral::io;
+using namespace folly::io;
 
 class FrameTester
     : public InboundHandler<std::unique_ptr<IOBuf>> {

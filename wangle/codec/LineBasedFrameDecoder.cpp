@@ -12,9 +12,9 @@
 
 namespace wangle {
 
-using coral::io::Cursor;
-using coral::IOBuf;
-using coral::IOBufQueue;
+using folly::io::Cursor;
+using folly::IOBuf;
+using folly::IOBufQueue;
 
 LineBasedFrameDecoder::LineBasedFrameDecoder(uint32_t maxLength,
                                              bool stripDelimiter,
@@ -36,11 +36,11 @@ bool LineBasedFrameDecoder::decode(Context* ctx,
       auto delimLength = c.read<char>() == '\r' ? 2 : 1;
       if (eol > maxLength_) {
         buf.split(eol + delimLength);
-        fail(ctx, coral::to<std::string>(eol));
+        fail(ctx, folly::to<std::string>(eol));
         return false;
       }
 
-      std::unique_ptr<coral::IOBuf> frame;
+      std::unique_ptr<folly::IOBuf> frame;
 
       if (stripDelimiter_) {
         frame = buf.split(eol);
@@ -57,7 +57,7 @@ bool LineBasedFrameDecoder::decode(Context* ctx,
         discardedBytes_ = len;
         buf.trimStart(len);
         discarding_ = true;
-        fail(ctx, "over " + coral::to<std::string>(len));
+        fail(ctx, "over " + folly::to<std::string>(len));
       }
       return false;
     }
@@ -80,9 +80,9 @@ bool LineBasedFrameDecoder::decode(Context* ctx,
 
 void LineBasedFrameDecoder::fail(Context* ctx, std::string len) {
   ctx->fireReadException(
-    coral::make_exception_wrapper<std::runtime_error>(
+    folly::make_exception_wrapper<std::runtime_error>(
       "frame length" + len +
-      " exeeds max " + coral::to<std::string>(maxLength_)));
+      " exeeds max " + folly::to<std::string>(maxLength_)));
 }
 
 int64_t LineBasedFrameDecoder::findEndOfLine(IOBufQueue& buf) {

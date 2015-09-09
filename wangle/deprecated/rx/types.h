@@ -10,15 +10,15 @@
 
 #pragma once
 
-#include <coral/ExceptionWrapper.h>
-#include <coral/Executor.h>
+#include <folly/ExceptionWrapper.h>
+#include <folly/Executor.h>
 
 namespace wangle {
 
-typedef coral::exception_wrapper Error;
+typedef folly::exception_wrapper Error;
 // The Executor is basically an rx Scheduler (by design). So just
 // alias it.
-typedef std::shared_ptr<coral::Executor> SchedulerPtr;
+typedef std::shared_ptr<folly::Executor> SchedulerPtr;
 
 template <class T, size_t InlineObservers = 3> class Observable;
 template <class T> struct Observer;

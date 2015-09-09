@@ -11,11 +11,11 @@
 #include <wangle/channel/StaticPipeline.h>
 #include <wangle/channel/OutputBufferingHandler.h>
 #include <wangle/channel/test/MockHandler.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 using namespace testing;
 

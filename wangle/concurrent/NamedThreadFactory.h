@@ -15,26 +15,26 @@
 #include <thread>
 
 #include <wangle/concurrent/ThreadFactory.h>
-#include <coral/Conv.h>
-#include <coral/Range.h>
-#include <coral/ThreadName.h>
+#include <folly/Conv.h>
+#include <folly/Range.h>
+#include <folly/ThreadName.h>
 
 namespace wangle {
 
 class NamedThreadFactory : public ThreadFactory {
  public:
-  explicit NamedThreadFactory(coral::StringPiece prefix)
+  explicit NamedThreadFactory(folly::StringPiece prefix)
     : prefix_(prefix.str()), suffix_(0) {}
 
-  std::thread newThread(coral::Func&& func) override {
+  std::thread newThread(folly::Func&& func) override {
     auto thread = std::thread(std::move(func));
-    coral::setThreadName(
+    folly::setThreadName(
         thread.native_handle(),
-        coral::to<std::string>(prefix_, suffix_++));
+        folly::to<std::string>(prefix_, suffix_++));
     return thread;
   }
 
-  void setNamePrefix(coral::StringPiece prefix) {
+  void setNamePrefix(folly::StringPiece prefix) {
     prefix_ = prefix.str();
   }
 

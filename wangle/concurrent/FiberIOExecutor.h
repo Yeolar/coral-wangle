@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <coral/fibers/FiberManagerMap.h>
+#include <folly/experimental/fibers/FiberManagerMap.h>
 #include <wangle/concurrent/IOExecutor.h>
 
 namespace wangle {

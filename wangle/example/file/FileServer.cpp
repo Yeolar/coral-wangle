@@ -17,7 +17,7 @@
 #include <wangle/codec/StringCodec.h>
 #include <sys/sendfile.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 DEFINE_int32(port, 11219, "test file server port");
@@ -74,10 +74,10 @@ class FileServerHandler : public HandlerAdapter<std::string> {
 
 class FileServerPipelineFactory : public PipelineFactory<FileServerPipeline> {
  public:
-  std::unique_ptr<FileServerPipeline, coral::DelayedDestruction::Destructor>
+  std::unique_ptr<FileServerPipeline, folly::DelayedDestruction::Destructor>
   newPipeline(std::shared_ptr<AsyncSocket> sock) {
 
-    std::unique_ptr<FileServerPipeline, coral::DelayedDestruction::Destructor>
+    std::unique_ptr<FileServerPipeline, folly::DelayedDestruction::Destructor>
       pipeline(new FileServerPipeline);
     pipeline->addBack(AsyncSocketHandler(sock));
     pipeline->addBack(LineBasedFrameDecoder());

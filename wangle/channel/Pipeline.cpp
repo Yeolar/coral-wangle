@@ -16,7 +16,7 @@
 
 #include <wangle/channel/Pipeline.h>
 
-using coral::WriteFlags;
+using folly::WriteFlags;
 
 namespace wangle {
 

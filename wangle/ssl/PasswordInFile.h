@@ -9,11 +9,11 @@
  */
 #pragma once
 
-#include <coral/io/async/SSLContext.h> // PasswordCollector
+#include <folly/io/async/SSLContext.h> // PasswordCollector
 
 namespace wangle {
 
-class PasswordInFile: public coral::PasswordCollector {
+class PasswordInFile: public folly::PasswordCollector {
  public:
   explicit PasswordInFile(const std::string& file);
   ~PasswordInFile();

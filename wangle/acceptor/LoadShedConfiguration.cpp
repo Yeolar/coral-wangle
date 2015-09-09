@@ -9,21 +9,21 @@
  */
 #include <wangle/acceptor/LoadShedConfiguration.h>
 
-#include <coral/Conv.h>
+#include <folly/Conv.h>
 #include <openssl/ssl.h>
 
 using std::string;
-using coral::SocketAddress;
+using folly::SocketAddress;
 
 namespace wangle {
 
-void LoadShedConfiguration::addWhitelistAddr(coral::StringPiece input) {
+void LoadShedConfiguration::addWhitelistAddr(folly::StringPiece input) {
   auto addr = input.str();
   size_t separator = addr.find_first_of('/');
   if (separator == string::npos) {
     whitelistAddrs_.insert(SocketAddress(addr, 0));
   } else {
-    unsigned prefixLen = coral::to<unsigned>(addr.substr(separator + 1));
+    unsigned prefixLen = folly::to<unsigned>(addr.substr(separator + 1));
     addr.erase(separator);
     whitelistNetworks_.insert(NetworkAddress(SocketAddress(addr, 0), prefixLen));
   }

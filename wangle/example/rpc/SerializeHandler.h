@@ -24,21 +24,21 @@
 // Do some serialization / deserialization using thrift.
 // A real rpc server would probably use generated client/server stubs
 class SerializeHandler : public wangle::Handler<
-  std::unique_ptr<coral::IOBuf>, thrift::test::Bonk,
-  thrift::test::Bonk, std::unique_ptr<coral::IOBuf>> {
+  std::unique_ptr<folly::IOBuf>, thrift::test::Bonk,
+  thrift::test::Bonk, std::unique_ptr<folly::IOBuf>> {
  public:
-  virtual void read(Context* ctx, std::unique_ptr<coral::IOBuf> msg) override {
+  virtual void read(Context* ctx, std::unique_ptr<folly::IOBuf> msg) override {
     thrift::test::Bonk received;
     ser.deserialize<thrift::test::Bonk>(msg->moveToFbString(), &received);
     ctx->fireRead(received);
   }
 
-  virtual coral::Future<coral::Unit> write(
+  virtual folly::Future<folly::Unit> write(
     Context* ctx, thrift::test::Bonk b) override {
 
     std::string out;
     ser.serialize<thrift::test::Bonk>(b, &out);
-    return ctx->fireWrite(coral::IOBuf::copyBuffer(out));
+    return ctx->fireWrite(folly::IOBuf::copyBuffer(out));
   }
 
  private:

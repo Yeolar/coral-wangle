@@ -12,7 +12,7 @@
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 
-using coral::AsyncSocket;
+using folly::AsyncSocket;
 
 namespace wangle {
 

@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/SSLContext.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/SSLContext.h>
 
 #include <glog/logging.h>
 #include <list>
@@ -21,7 +21,7 @@
 #include <wangle/acceptor/DomainNameMisc.h>
 #include <vector>
 
-namespace coral {
+namespace folly {
 
 class SocketAddress;
 class SSLContext;
@@ -39,7 +39,7 @@ struct TLSTicketKeySeeds;
 class SSLContextManager {
  public:
 
-  explicit SSLContextManager(coral::EventBase* eventBase,
+  explicit SSLContextManager(folly::EventBase* eventBase,
                              const std::string& vipName, bool strict,
                              SSLStats* stats);
   virtual ~SSLContextManager();
@@ -60,25 +60,25 @@ class SSLContextManager {
     const SSLContextConfig& ctxConfig,
     const SSLCacheOptions& cacheOptions,
     const TLSTicketKeySeeds* ticketSeeds,
-    const coral::SocketAddress& vipAddress,
+    const folly::SocketAddress& vipAddress,
     const std::shared_ptr<SSLCacheProvider> &externalCache);
 
   /**
    * Get the default SSL_CTX for a VIP
    */
-  std::shared_ptr<coral::SSLContext>
+  std::shared_ptr<folly::SSLContext>
     getDefaultSSLCtx() const;
 
   /**
    * Search by the _one_ level up subdomain
    */
-  std::shared_ptr<coral::SSLContext>
+  std::shared_ptr<folly::SSLContext>
     getSSLCtxBySuffix(const DNString& dnstr) const;
 
   /**
    * Search by the full-string domain name
    */
-  std::shared_ptr<coral::SSLContext>
+  std::shared_ptr<folly::SSLContext>
     getSSLCtx(const DNString& dnstr) const;
 
   /**
@@ -87,12 +87,12 @@ class SSLContextManager {
   void insertSSLCtxByDomainName(
     const char* dn,
     size_t len,
-    std::shared_ptr<coral::SSLContext> sslCtx);
+    std::shared_ptr<folly::SSLContext> sslCtx);
 
   void insertSSLCtxByDomainNameImpl(
     const char* dn,
     size_t len,
-    std::shared_ptr<coral::SSLContext> sslCtx);
+    std::shared_ptr<folly::SSLContext> sslCtx);
 
   void reloadTLSTicketKeys(const std::vector<std::string>& oldSeeds,
                            const std::vector<std::string>& currentSeeds,
@@ -108,7 +108,7 @@ class SSLContextManager {
 
  protected:
   virtual void enableAsyncCrypto(
-    const std::shared_ptr<coral::SSLContext>& sslCtx) {
+    const std::shared_ptr<folly::SSLContext>& sslCtx) {
     LOG(FATAL) << "Unsupported in base SSLContextManager";
   }
   SSLStats* stats_{nullptr};
@@ -117,7 +117,7 @@ class SSLContextManager {
   SSLContextManager(const SSLContextManager&) = delete;
 
   void ctxSetupByOpensslFeature(
-    std::shared_ptr<coral::SSLContext> sslCtx,
+    std::shared_ptr<folly::SSLContext> sslCtx,
     const SSLContextConfig& ctxConfig);
 
   /**
@@ -128,7 +128,7 @@ class SSLContextManager {
     !defined(OPENSSL_NO_TLSEXT) && \
     defined(SSL_CTRL_SET_TLSEXT_SERVERNAME_CB)
 # define PROXYGEN_HAVE_SERVERNAMECALLBACK
-  coral::SSLContext::ServerNameCallbackResult
+  folly::SSLContext::ServerNameCallbackResult
     serverNameCallback(SSL* ssl);
 #endif
 
@@ -154,7 +154,7 @@ class SSLContextManager {
    */
 
   void insert(
-    std::shared_ptr<coral::SSLContext> sslCtx,
+    std::shared_ptr<folly::SSLContext> sslCtx,
     std::unique_ptr<SSLSessionCacheManager> cmanager,
     std::unique_ptr<TLSTicketKeyManager> tManager,
     bool defaultFallback);
@@ -163,22 +163,22 @@ class SSLContextManager {
    * Container to own the SSLContext, SSLSessionCacheManager and
    * TLSTicketKeyManager.
    */
-  std::vector<std::shared_ptr<coral::SSLContext>> ctxs_;
+  std::vector<std::shared_ptr<folly::SSLContext>> ctxs_;
   std::vector<std::unique_ptr<SSLSessionCacheManager>>
     sessionCacheManagers_;
   std::vector<std::unique_ptr<TLSTicketKeyManager>> ticketManagers_;
 
-  std::shared_ptr<coral::SSLContext> defaultCtx_;
+  std::shared_ptr<folly::SSLContext> defaultCtx_;
 
   /**
    * Container to store the (DomainName -> SSL_CTX) mapping
    */
   std::unordered_map<
     DNString,
-    std::shared_ptr<coral::SSLContext>,
+    std::shared_ptr<folly::SSLContext>,
     DNStringHash> dnMap_;
 
-  coral::EventBase* eventBase_;
+  folly::EventBase* eventBase_;
   ClientHelloExtStats* clientHelloTLSExtStats_{nullptr};
   SSLContextConfig::SNINoMatchFn noMatchFn_;
   bool strict_{true};

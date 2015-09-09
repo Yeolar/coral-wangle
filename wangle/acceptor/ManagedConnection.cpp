@@ -40,7 +40,7 @@ ManagedConnection::resetTimeoutTo(std::chrono::milliseconds timeout) {
 
 void
 ManagedConnection::scheduleTimeout(
-  coral::HHWheelTimer::Callback* callback,
+  folly::HHWheelTimer::Callback* callback,
     std::chrono::milliseconds timeout) {
   if (connectionManager_) {
     connectionManager_->scheduleTimeout(callback, timeout);

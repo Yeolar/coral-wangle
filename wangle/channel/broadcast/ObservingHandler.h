@@ -1,7 +1,7 @@
 // Copyright 2004-present Facebook.  All rights reserved.
 #pragma once
 
-#include <coral/ThreadLocal.h>
+#include <folly/ThreadLocal.h>
 #include <wangle/bootstrap/AcceptRoutingHandler.h>
 #include <wangle/bootstrap/ServerBootstrap.h>
 #include <wangle/channel/broadcast/BroadcastPool.h>
@@ -15,10 +15,10 @@ namespace wangle {
  * obtained and subscribed to based on the given routing data.
  */
 template <typename T, typename R>
-class ObservingHandler : public HandlerAdapter<coral::IOBufQueue&, T>,
+class ObservingHandler : public HandlerAdapter<folly::IOBufQueue&, T>,
                          public Subscriber<T> {
  public:
-  typedef typename HandlerAdapter<coral::IOBufQueue&, T>::Context Context;
+  typedef typename HandlerAdapter<folly::IOBufQueue&, T>::Context Context;
 
   ObservingHandler(
       const R& routingData,
@@ -35,11 +35,11 @@ class ObservingHandler : public HandlerAdapter<coral::IOBufQueue&, T>,
   // HandlerAdapter implementation
   void transportActive(Context* ctx) override;
   void readEOF(Context* ctx) override;
-  void readException(Context* ctx, coral::exception_wrapper ex) override;
+  void readException(Context* ctx, folly::exception_wrapper ex) override;
 
   // Subscriber implementation
   void onNext(const T& buf) override;
-  void onError(coral::exception_wrapper ex) override;
+  void onError(folly::exception_wrapper ex) override;
   void onCompleted() override;
 
  protected:
@@ -65,11 +65,11 @@ class ObservingHandler : public HandlerAdapter<coral::IOBufQueue&, T>,
   uint64_t subscriptionId_{0};
   bool paused_{false};
 
-  coral::ThreadLocalPtr<BroadcastPool<T, R>> broadcastPool_;
+  folly::ThreadLocalPtr<BroadcastPool<T, R>> broadcastPool_;
 };
 
 template <typename T>
-using ObservingPipeline = Pipeline<coral::IOBufQueue&, T>;
+using ObservingPipeline = Pipeline<folly::IOBufQueue&, T>;
 
 template <typename T, typename R>
 class ObservingPipelineFactory
@@ -82,7 +82,7 @@ class ObservingPipelineFactory
         broadcastPipelineFactory_(broadcastPipelineFactory) {}
 
   typename ObservingPipeline<T>::UniquePtr newPipeline(
-      std::shared_ptr<coral::AsyncSocket> socket,
+      std::shared_ptr<folly::AsyncSocket> socket,
       const R& routingData) override {
     typename ObservingPipeline<T>::UniquePtr pipeline(new ObservingPipeline<T>);
     pipeline->addBack(AsyncSocketHandler(socket));

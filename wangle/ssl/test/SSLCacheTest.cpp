@@ -7,17 +7,17 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/Portability.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/Portability.h>
+#include <folly/io/async/EventBase.h>
 #include <gflags/gflags.h>
 #include <iostream>
 #include <thread>
-#include <coral/io/async/AsyncSSLSocket.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 #include <vector>
 
 using namespace std;
-using namespace coral;
+using namespace folly;
 
 DEFINE_int32(clients, 1, "Number of simulated SSL clients");
 DEFINE_int32(threads, 1, "Number of threads to spread clients across");

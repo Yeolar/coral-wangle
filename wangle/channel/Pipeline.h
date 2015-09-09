@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include <coral/futures/Future.h>
-#include <coral/futures/Unit.h>
-#include <coral/io/async/AsyncTransport.h>
-#include <coral/io/async/DelayedDestruction.h>
+#include <folly/futures/Future.h>
+#include <folly/futures/Unit.h>
+#include <folly/io/async/AsyncTransport.h>
+#include <folly/io/async/DelayedDestruction.h>
 #include <wangle/channel/HandlerContext.h>
-#include <coral/ExceptionWrapper.h>
-#include <coral/Memory.h>
+#include <folly/ExceptionWrapper.h>
+#include <folly/Memory.h>
 
 namespace wangle {
 
@@ -28,7 +28,7 @@ class PipelineManager {
   virtual void deletePipeline(PipelineBase* pipeline) = 0;
 };
 
-class PipelineBase : public coral::DelayedDestruction {
+class PipelineBase : public folly::DelayedDestruction {
  public:
   virtual ~PipelineBase() = default;
 
@@ -42,16 +42,16 @@ class PipelineBase : public coral::DelayedDestruction {
     }
   }
 
-  void setTransport(std::shared_ptr<coral::AsyncTransport> transport) {
+  void setTransport(std::shared_ptr<folly::AsyncTransport> transport) {
     transport_ = transport;
   }
 
-  std::shared_ptr<coral::AsyncTransport> getTransport() {
+  std::shared_ptr<folly::AsyncTransport> getTransport() {
     return transport_;
   }
 
-  void setWriteFlags(coral::WriteFlags flags);
-  coral::WriteFlags getWriteFlags();
+  void setWriteFlags(folly::WriteFlags flags);
+  folly::WriteFlags getWriteFlags();
 
   void setReadBufferSettings(uint64_t minAvailable, uint64_t allocationSize);
   std::pair<uint64_t, uint64_t> getReadBufferSettings();
@@ -117,7 +117,7 @@ class PipelineBase : public coral::DelayedDestruction {
 
  private:
   PipelineManager* manager_{nullptr};
-  std::shared_ptr<coral::AsyncTransport> transport_;
+  std::shared_ptr<folly::AsyncTransport> transport_;
 
   template <class Context>
   PipelineBase& addHelper(std::shared_ptr<Context>&& ctx, bool front);
@@ -130,7 +130,7 @@ class PipelineBase : public coral::DelayedDestruction {
 
   ContextIterator removeAt(const ContextIterator& it);
 
-  coral::WriteFlags writeFlags_{coral::WriteFlags::NONE};
+  folly::WriteFlags writeFlags_{folly::WriteFlags::NONE};
   std::pair<uint64_t, uint64_t> readBufferSettings_{2048, 2048};
 
   std::shared_ptr<PipelineContext> owner_;
@@ -144,7 +144,7 @@ class PipelineBase : public coral::DelayedDestruction {
  * If R is Unit, read(), readEOF(), and readException() will be disabled.
  * If W is Unit, write() and close() will be disabled.
  */
-template <class R, class W = coral::Unit>
+template <class R, class W = folly::Unit>
 class Pipeline : public PipelineBase {
  public:
   typedef std::unique_ptr<Pipeline, Destructor> UniquePtr;
@@ -153,33 +153,33 @@ class Pipeline : public PipelineBase {
   ~Pipeline();
 
   template <class T = R>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
   read(R msg);
 
   template <class T = R>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
   readEOF();
 
   template <class T = R>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
-  readException(coral::exception_wrapper e);
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
+  readException(folly::exception_wrapper e);
 
   template <class T = R>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
   transportActive();
 
   template <class T = R>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
   transportInactive();
 
   template <class T = W>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value,
-                          coral::Future<coral::Unit>>::type
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value,
+                          folly::Future<folly::Unit>>::type
   write(W msg);
 
   template <class T = W>
-  typename std::enable_if<!std::is_same<T, coral::Unit>::value,
-                          coral::Future<coral::Unit>>::type
+  typename std::enable_if<!std::is_same<T, folly::Unit>::value,
+                          folly::Future<folly::Unit>>::type
   close();
 
   void finalize() override;
@@ -196,7 +196,7 @@ class Pipeline : public PipelineBase {
 
 } // namespace wangle
 
-namespace coral {
+namespace folly {
 
 class AsyncSocket;
 
@@ -208,7 +208,7 @@ template <typename Pipeline>
 class PipelineFactory {
  public:
   virtual typename Pipeline::UniquePtr newPipeline(
-      std::shared_ptr<coral::AsyncSocket>) = 0;
+      std::shared_ptr<folly::AsyncSocket>) = 0;
 
   virtual ~PipelineFactory() = default;
 };

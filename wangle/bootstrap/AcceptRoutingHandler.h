@@ -74,7 +74,7 @@ class AcceptRoutingPipelineFactory : public AcceptPipelineFactory {
         childPipelineFactory_(childPipelineFactory) {}
 
   AcceptPipeline::UniquePtr newPipeline(
-      std::shared_ptr<coral::AsyncSocket>) override {
+      std::shared_ptr<folly::AsyncSocket>) override {
     AcceptPipeline::UniquePtr pipeline(new AcceptPipeline);
     pipeline->addBack(AcceptRoutingHandler<Pipeline, R>(
         server_, routingHandlerFactory_, childPipelineFactory_));
@@ -96,7 +96,7 @@ class RoutingDataPipelineFactory {
   virtual ~RoutingDataPipelineFactory() {}
 
   virtual typename Pipeline::UniquePtr newPipeline(
-      std::shared_ptr<coral::AsyncSocket> socket, const R& routingData) = 0;
+      std::shared_ptr<folly::AsyncSocket> socket, const R& routingData) = 0;
 };
 
 } // namespace wangle

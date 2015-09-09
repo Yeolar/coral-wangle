@@ -17,7 +17,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 using namespace testing;
 

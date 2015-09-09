@@ -17,7 +17,7 @@
 #include <boost/thread.hpp>
 
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 
 typedef Pipeline<IOBufQueue&, std::unique_ptr<IOBuf>> BytesPipeline;
 
@@ -26,7 +26,7 @@ typedef ClientBootstrap<BytesPipeline> TestClient;
 
 class TestClientPipelineFactory : public PipelineFactory<BytesPipeline> {
  public:
-  std::unique_ptr<BytesPipeline, coral::DelayedDestruction::Destructor>
+  std::unique_ptr<BytesPipeline, folly::DelayedDestruction::Destructor>
   newPipeline(std::shared_ptr<AsyncSocket> sock) override {
     // We probably aren't connected immedately, check after a small delay
     EventBaseManager::get()->getEventBase()->tryRunAfterDelay([sock](){
@@ -39,11 +39,11 @@ class TestClientPipelineFactory : public PipelineFactory<BytesPipeline> {
 
 class TestPipelineFactory : public PipelineFactory<BytesPipeline> {
  public:
-  std::unique_ptr<BytesPipeline, coral::DelayedDestruction::Destructor>
+  std::unique_ptr<BytesPipeline, folly::DelayedDestruction::Destructor>
   newPipeline(std::shared_ptr<AsyncSocket> sock) override {
 
     pipelines++;
-    return std::unique_ptr<BytesPipeline, coral::DelayedDestruction::Destructor>(
+    return std::unique_ptr<BytesPipeline, folly::DelayedDestruction::Destructor>(
       new BytesPipeline());
   }
   std::atomic<int> pipelines{0};
@@ -56,7 +56,7 @@ EventBase base_;
     Acceptor::init(nullptr, &base_);
   }
   void onNewConnection(AsyncSocket::UniquePtr sock,
-                       const coral::SocketAddress* address,
+                       const folly::SocketAddress* address,
                        const std::string& nextProtocolName,
                        SecureTransportType secureTransportType,
                        const TransportInfo& tinfo) override {}
@@ -257,7 +257,7 @@ TEST(Bootstrap, ExistingSocket) {
   TestServer server;
   auto factory = std::make_shared<TestPipelineFactory>();
   server.childPipeline(factory);
-  coral::AsyncServerSocket::UniquePtr socket(new AsyncServerSocket);
+  folly::AsyncServerSocket::UniquePtr socket(new AsyncServerSocket);
   server.bind(std::move(socket));
 }
 
@@ -276,11 +276,11 @@ class TestHandlerPipelineFactory
     : public PipelineFactory<ServerBootstrap<BytesPipeline>::AcceptPipeline> {
  public:
   std::unique_ptr<ServerBootstrap<BytesPipeline>::AcceptPipeline,
-                  coral::DelayedDestruction::Destructor>
+                  folly::DelayedDestruction::Destructor>
       newPipeline(std::shared_ptr<AsyncSocket>) override {
 
     std::unique_ptr<ServerBootstrap<BytesPipeline>::AcceptPipeline,
-                    coral::DelayedDestruction::Destructor> pipeline(
+                    folly::DelayedDestruction::Destructor> pipeline(
                       new ServerBootstrap<BytesPipeline>::AcceptPipeline);
     pipeline->addBack(HandlerPipeline());
     return pipeline;

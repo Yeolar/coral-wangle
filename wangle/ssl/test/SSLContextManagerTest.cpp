@@ -7,15 +7,15 @@
  *  of patent rights can be found in the PATENTS file in the same directory.
  *
  */
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/SSLContext.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/SSLContext.h>
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <wangle/ssl/SSLContextManager.h>
 #include <wangle/acceptor/DomainNameMisc.h>
 
 using std::shared_ptr;
-using namespace coral;
+using namespace folly;
 
 namespace wangle {
 

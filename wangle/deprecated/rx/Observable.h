@@ -14,12 +14,12 @@
 #include <wangle/deprecated/rx/Subject.h>
 #include <wangle/deprecated/rx/Subscription.h>
 
-#include <coral/RWSpinLock.h>
-#include <coral/SmallLocks.h>
-#include <coral/ThreadLocal.h>
-#include <coral/small_vector.h>
-#include <coral/Executor.h>
-#include <coral/Memory.h>
+#include <folly/RWSpinLock.h>
+#include <folly/SmallLocks.h>
+#include <folly/ThreadLocal.h>
+#include <folly/small_vector.h>
+#include <folly/Executor.h>
+#include <folly/Memory.h>
 #include <map>
 #include <memory>
 
@@ -54,7 +54,7 @@ class Observable {
   // Observable. This might be useful in high performance environments where
   // allocations must be kept to a minimum. Template parameter InlineObservers
   // specifies how many observers can been subscribed inline without any
-  // allocations (it's just the size of a coral::small_vector).
+  // allocations (it's just the size of a folly::small_vector).
   virtual Subscription<T> subscribe(ObserverPtr<T> observer) {
     return subscribeImpl(observer, false);
   }
@@ -70,7 +70,7 @@ class Observable {
       }
       newObservers_->push_back(observer);
     } else {
-      coral::RWSpinLock::WriteHolder{&observersLock_};
+      folly::RWSpinLock::WriteHolder{&observersLock_};
       observers_.push_back(observer);
     }
   }
@@ -131,7 +131,7 @@ class Observable {
       Observable* observable_;
     };
 
-    return coral::make_unique<Subject_>(scheduler, this);
+    return folly::make_unique<Subject_>(scheduler, this);
   }
 
  protected:
@@ -146,7 +146,7 @@ class Observable {
     *inCallback_ = true;
 
     {
-      coral::RWSpinLock::ReadHolder rh(observersLock_);
+      folly::RWSpinLock::ReadHolder rh(observersLock_);
       for (auto o : observers_) {
         f(o);
       }
@@ -160,7 +160,7 @@ class Observable {
                  (newSubscribers_ && !newSubscribers_->empty()) ||
                  (oldSubscribers_ && !oldSubscribers_->empty()))) {
       {
-        coral::RWSpinLock::WriteHolder wh(observersLock_);
+        folly::RWSpinLock::WriteHolder wh(observersLock_);
         if (newObservers_) {
           for (auto observer : *(newObservers_)) {
             observers_.push_back(observer);
@@ -194,7 +194,7 @@ class Observable {
       }
       newSubscribers_->insert(std::move(kv));
     } else {
-      coral::RWSpinLock::WriteHolder{&observersLock_};
+      folly::RWSpinLock::WriteHolder{&observersLock_};
       subscribers_.insert(std::move(kv));
     }
     return subscription;
@@ -208,24 +208,24 @@ class Observable {
 
     void unsubscribe(uint64_t id) {
       CHECK(id > 0);
-      coral::RWSpinLock::ReadHolder guard(lock_);
+      folly::RWSpinLock::ReadHolder guard(lock_);
       if (observable_) {
         observable_->unsubscribe(id);
       }
     }
 
     void disable() {
-      coral::RWSpinLock::WriteHolder guard(lock_);
+      folly::RWSpinLock::WriteHolder guard(lock_);
       observable_ = nullptr;
     }
 
    private:
-    coral::RWSpinLock lock_;
+    folly::RWSpinLock lock_;
     Observable* observable_;
   };
 
   std::shared_ptr<Unsubscriber> unsubscriber_{nullptr};
-  coral::MicroSpinLock unsubscriberLock_{0};
+  folly::MicroSpinLock unsubscriberLock_{0};
 
   friend class Subscription<T>;
 
@@ -243,7 +243,7 @@ class Observable {
       }
       oldSubscribers_->push_back(id);
     } else {
-      coral::RWSpinLock::WriteHolder{&observersLock_};
+      folly::RWSpinLock::WriteHolder{&observersLock_};
       subscribers_.erase(id);
     }
   }
@@ -253,7 +253,7 @@ class Observable {
       return Subscription<T>(nullptr, nextSubscriptionId_++);
     } else {
       if (!unsubscriber_) {
-        std::lock_guard<coral::MicroSpinLock> guard(unsubscriberLock_);
+        std::lock_guard<folly::MicroSpinLock> guard(unsubscriberLock_);
         if (!unsubscriber_) {
           unsubscriber_ = std::make_shared<Unsubscriber>(this);
         }
@@ -263,17 +263,17 @@ class Observable {
   }
 
   std::atomic<uint64_t> nextSubscriptionId_;
-  coral::RWSpinLock observersLock_;
-  coral::ThreadLocalPtr<bool> inCallback_;
+  folly::RWSpinLock observersLock_;
+  folly::ThreadLocalPtr<bool> inCallback_;
 
-  typedef coral::small_vector<Observer<T>*, InlineObservers> ObserverList;
+  typedef folly::small_vector<Observer<T>*, InlineObservers> ObserverList;
   ObserverList observers_;
-  coral::ThreadLocalPtr<ObserverList> newObservers_;
+  folly::ThreadLocalPtr<ObserverList> newObservers_;
 
   typedef std::map<uint64_t, ObserverPtr<T>> SubscriberMap;
   SubscriberMap subscribers_;
-  coral::ThreadLocalPtr<SubscriberMap> newSubscribers_;
-  coral::ThreadLocalPtr<std::vector<uint64_t>> oldSubscribers_;
+  folly::ThreadLocalPtr<SubscriberMap> newSubscribers_;
+  folly::ThreadLocalPtr<std::vector<uint64_t>> oldSubscribers_;
 };
 
 } // namespace wangle

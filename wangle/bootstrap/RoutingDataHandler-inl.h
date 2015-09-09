@@ -8,7 +8,7 @@ RoutingDataHandler<R>::RoutingDataHandler(uint64_t connId, Callback* cob)
     : connId_(connId), cob_(CHECK_NOTNULL(cob)) {}
 
 template <typename R>
-void RoutingDataHandler<R>::read(Context* ctx, coral::IOBufQueue& q) {
+void RoutingDataHandler<R>::read(Context* ctx, folly::IOBufQueue& q) {
   RoutingData routingData;
   if (parseRoutingData(q, routingData)) {
     cob_->onRoutingData(connId_, routingData);
@@ -22,7 +22,7 @@ void RoutingDataHandler<R>::readEOF(Context* ctx) {
 }
 
 template <typename R>
-void RoutingDataHandler<R>::readException(Context* ctx, coral::exception_wrapper ex) {
+void RoutingDataHandler<R>::readException(Context* ctx, folly::exception_wrapper ex) {
   VLOG(4) << "Received exception before parsing routing data: " << ex.what();
   cob_->onError(connId_);
 }

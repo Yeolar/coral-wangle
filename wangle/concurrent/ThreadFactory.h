@@ -9,7 +9,7 @@
  */
 
 #pragma once
-#include <coral/Executor.h>
+#include <folly/Executor.h>
 
 #include <thread>
 
@@ -18,7 +18,7 @@ namespace wangle {
 class ThreadFactory {
  public:
   virtual ~ThreadFactory() = default;
-  virtual std::thread newThread(coral::Func&& func) = 0;
+  virtual std::thread newThread(folly::Func&& func) = 0;
 };
 
 } // namespace wangle

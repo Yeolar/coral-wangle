@@ -13,18 +13,18 @@
 #include <wangle/acceptor/ManagedConnection.h>
 
 #include <chrono>
-#include <coral/Memory.h>
-#include <coral/io/async/AsyncTimeout.h>
-#include <coral/io/async/HHWheelTimer.h>
-#include <coral/io/async/DelayedDestruction.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/Memory.h>
+#include <folly/io/async/AsyncTimeout.h>
+#include <folly/io/async/HHWheelTimer.h>
+#include <folly/io/async/DelayedDestruction.h>
+#include <folly/io/async/EventBase.h>
 
 namespace wangle {
 
 /**
  * A ConnectionManager keeps track of ManagedConnections.
  */
-class ConnectionManager: public coral::DelayedDestruction,
+class ConnectionManager: public folly::DelayedDestruction,
                          private ManagedConnection::Callback {
  public:
 
@@ -60,14 +60,14 @@ class ConnectionManager: public coral::DelayedDestruction,
    */
   template<typename... Args>
   static UniquePtr makeUnique(Args&&... args) {
-    return coral::make_unique<ConnectionManager, Destructor>(
+    return folly::make_unique<ConnectionManager, Destructor>(
       std::forward<Args>(args)...);
   }
 
   /**
    * Constructor not to be used by itself.
    */
-  ConnectionManager(coral::EventBase* eventBase,
+  ConnectionManager(folly::EventBase* eventBase,
                     std::chrono::milliseconds timeout,
                     Callback* callback = nullptr);
 
@@ -91,7 +91,7 @@ class ConnectionManager: public coral::DelayedDestruction,
   /*
    * Schedule a callback on the wheel timer
    */
-  void scheduleTimeout(coral::HHWheelTimer::Callback* callback,
+  void scheduleTimeout(folly::HHWheelTimer::Callback* callback,
                        std::chrono::milliseconds timeout);
 
   /**
@@ -151,11 +151,11 @@ class ConnectionManager: public coral::DelayedDestruction,
 
  private:
   class CloseIdleConnsCallback :
-      public coral::EventBase::LoopCallback,
-      public coral::AsyncTimeout {
+      public folly::EventBase::LoopCallback,
+      public folly::AsyncTimeout {
    public:
     explicit CloseIdleConnsCallback(ConnectionManager* manager)
-        : coral::AsyncTimeout(manager->eventBase_),
+        : folly::AsyncTimeout(manager->eventBase_),
           manager_(manager) {}
 
     void runLoopCallback() noexcept override {
@@ -200,20 +200,20 @@ class ConnectionManager: public coral::DelayedDestruction,
    * idle and busy ones.  [conns_.begin(), idleIterator_) are the busy ones,
    * while [idleIterator_, conns_.end()) are the idle one. Moreover, the idle
    * ones are organized in the decreasing idle time order. */
-  coral::CountedIntrusiveList<
+  folly::CountedIntrusiveList<
     ManagedConnection,&ManagedConnection::listHook_> conns_;
 
   /** Connections that currently are registered for timeouts */
-  coral::HHWheelTimer::UniquePtr connTimeouts_;
+  folly::HHWheelTimer::UniquePtr connTimeouts_;
 
   /** Optional callback to notify of state changes */
   Callback* callback_;
 
   /** Event base in which we run */
-  coral::EventBase* eventBase_;
+  folly::EventBase* eventBase_;
 
   /** Iterator to the next connection to shed; used by drainAllConnections() */
-  coral::CountedIntrusiveList<
+  folly::CountedIntrusiveList<
     ManagedConnection,&ManagedConnection::listHook_>::iterator idleIterator_;
   CloseIdleConnsCallback idleLoopCallback_;
   ShutdownAction action_{ShutdownAction::DRAIN1};

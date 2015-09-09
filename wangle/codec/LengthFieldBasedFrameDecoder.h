@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <coral/io/Cursor.h>
+#include <folly/io/Cursor.h>
 #include <wangle/codec/ByteToMessageDecoder.h>
 
 namespace wangle {
@@ -184,14 +184,14 @@ class LengthFieldBasedFrameDecoder : public ByteToByteDecoder {
                                         bool networkByteOrder = true);
 
   bool decode(Context* ctx,
-              coral::IOBufQueue& buf,
-              std::unique_ptr<coral::IOBuf>& result,
+              folly::IOBufQueue& buf,
+              std::unique_ptr<folly::IOBuf>& result,
               size_t&) override;
 
  private:
 
   uint64_t getUnadjustedFrameLength(
-    coral::IOBufQueue& buf, int offset, int length, bool networkByteOrder);
+    folly::IOBufQueue& buf, int offset, int length, bool networkByteOrder);
 
   uint32_t lengthFieldLength_;
   uint32_t maxFrameLength_;

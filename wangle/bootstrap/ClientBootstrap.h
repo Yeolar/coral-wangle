@@ -12,8 +12,8 @@
 
 #include <wangle/channel/Pipeline.h>
 #include <wangle/concurrent/IOThreadPoolExecutor.h>
-#include <coral/io/async/AsyncSocket.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/io/async/AsyncSocket.h>
+#include <folly/io/async/EventBaseManager.h>
 
 namespace wangle {
 
@@ -24,9 +24,9 @@ namespace wangle {
 template <typename Pipeline>
 class ClientBootstrap {
 
-  class ConnectCallback : public coral::AsyncSocket::ConnectCallback {
+  class ConnectCallback : public folly::AsyncSocket::ConnectCallback {
    public:
-    ConnectCallback(coral::Promise<Pipeline*> promise, ClientBootstrap* bootstrap)
+    ConnectCallback(folly::Promise<Pipeline*> promise, ClientBootstrap* bootstrap)
         : promise_(std::move(promise))
         , bootstrap_(bootstrap) {}
 
@@ -38,13 +38,13 @@ class ClientBootstrap {
       delete this;
     }
 
-    void connectErr(const coral::AsyncSocketException& ex) noexcept override {
+    void connectErr(const folly::AsyncSocketException& ex) noexcept override {
       promise_.setException(
-        coral::make_exception_wrapper<coral::AsyncSocketException>(ex));
+        folly::make_exception_wrapper<folly::AsyncSocketException>(ex));
       delete this;
     }
    private:
-    coral::Promise<Pipeline*> promise_;
+    folly::Promise<Pipeline*> promise_;
     ClientBootstrap* bootstrap_;
   };
 
@@ -63,18 +63,18 @@ class ClientBootstrap {
     return this;
   }
 
-  coral::Future<Pipeline*> connect(
-      coral::SocketAddress address,
+  folly::Future<Pipeline*> connect(
+      folly::SocketAddress address,
       std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) {
     DCHECK(pipelineFactory_);
-    auto base = coral::EventBaseManager::get()->getEventBase();
+    auto base = folly::EventBaseManager::get()->getEventBase();
     if (group_) {
       base = group_->getEventBase();
     }
-    coral::Future<Pipeline*> retval((Pipeline*)nullptr);
+    folly::Future<Pipeline*> retval((Pipeline*)nullptr);
     base->runImmediatelyOrRunInEventBaseThreadAndWait([&](){
-      auto socket = coral::AsyncSocket::newSocket(base);
-      coral::Promise<Pipeline*> promise;
+      auto socket = folly::AsyncSocket::newSocket(base);
+      folly::Promise<Pipeline*> promise;
       retval = promise.getFuture();
       socket->connect(
           new ConnectCallback(std::move(promise), this),
@@ -99,7 +99,7 @@ class ClientBootstrap {
 
  protected:
   std::unique_ptr<Pipeline,
-                  coral::DelayedDestruction::Destructor> pipeline_;
+                  folly::DelayedDestruction::Destructor> pipeline_;
 
   int port_;
 

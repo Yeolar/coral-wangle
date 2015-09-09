@@ -11,7 +11,7 @@
 #include <wangle/concurrent/CPUThreadPoolExecutor.h>
 #include <wangle/concurrent/PriorityLifoSemMPMCQueue.h>
 
-using coral::Func;
+using folly::Func;
 
 namespace wangle {
 
@@ -32,7 +32,7 @@ CPUThreadPoolExecutor::CPUThreadPoolExecutor(
     std::shared_ptr<ThreadFactory> threadFactory)
     : CPUThreadPoolExecutor(
           numThreads,
-          coral::make_unique<LifoSemMPMCQueue<CPUTask>>(
+          folly::make_unique<LifoSemMPMCQueue<CPUTask>>(
               CPUThreadPoolExecutor::kDefaultMaxQueueSize),
           std::move(threadFactory)) {}
 
@@ -47,7 +47,7 @@ CPUThreadPoolExecutor::CPUThreadPoolExecutor(
     std::shared_ptr<ThreadFactory> threadFactory)
     : CPUThreadPoolExecutor(
           numThreads,
-          coral::make_unique<PriorityLifoSemMPMCQueue<CPUTask>>(
+          folly::make_unique<PriorityLifoSemMPMCQueue<CPUTask>>(
               numPriorities,
               CPUThreadPoolExecutor::kDefaultMaxQueueSize),
           std::move(threadFactory)) {}
@@ -59,7 +59,7 @@ CPUThreadPoolExecutor::CPUThreadPoolExecutor(
     std::shared_ptr<ThreadFactory> threadFactory)
     : CPUThreadPoolExecutor(
           numThreads,
-          coral::make_unique<PriorityLifoSemMPMCQueue<CPUTask>>(
+          folly::make_unique<PriorityLifoSemMPMCQueue<CPUTask>>(
               numPriorities,
               maxQueueSize),
           std::move(threadFactory)) {}

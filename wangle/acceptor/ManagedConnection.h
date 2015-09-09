@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include <coral/IntrusiveList.h>
+#include <folly/IntrusiveList.h>
 #include <ostream>
-#include <coral/io/async/HHWheelTimer.h>
-#include <coral/io/async/DelayedDestruction.h>
+#include <folly/io/async/HHWheelTimer.h>
+#include <folly/io/async/DelayedDestruction.h>
 
 namespace wangle {
 
@@ -24,8 +24,8 @@ class ConnectionManager;
  * container such as an Acceptor.
  */
 class ManagedConnection:
-    public coral::HHWheelTimer::Callback,
-    public coral::DelayedDestruction {
+    public folly::HHWheelTimer::Callback,
+    public folly::DelayedDestruction {
  public:
 
   ManagedConnection();
@@ -107,7 +107,7 @@ class ManagedConnection:
 
   // Schedule an arbitrary timeout on the HHWheelTimer
   virtual void scheduleTimeout(
-    coral::HHWheelTimer::Callback* callback,
+    folly::HHWheelTimer::Callback* callback,
     std::chrono::milliseconds timeout);
 
   ConnectionManager* getConnectionManager() {
@@ -126,7 +126,7 @@ class ManagedConnection:
 
   ConnectionManager* connectionManager_;
 
-  coral::SafeIntrusiveListHook listHook_;
+  folly::SafeIntrusiveListHook listHook_;
 };
 
 std::ostream& operator<<(std::ostream& os, const ManagedConnection& conn);

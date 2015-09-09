@@ -11,7 +11,7 @@
 #pragma once
 
 #include <wangle/bootstrap/ServerBootstrap-inl.h>
-#include <coral/Baton.h>
+#include <folly/Baton.h>
 #include <wangle/channel/Pipeline.h>
 #include <iostream>
 #include <thread>
@@ -151,7 +151,7 @@ class ServerBootstrap {
    *
    * @param sock Existing socket to use for accepting
    */
-  void bind(coral::AsyncServerSocket::UniquePtr s) {
+  void bind(folly::AsyncServerSocket::UniquePtr s) {
     if (!workerFactory_) {
       group(nullptr);
     }
@@ -160,12 +160,12 @@ class ServerBootstrap {
     // we can only accept on a single thread
     CHECK(acceptor_group_->numThreads() == 1);
 
-    std::shared_ptr<coral::AsyncServerSocket> socket(
-      s.release(), coral::DelayedDestruction::Destructor());
+    std::shared_ptr<folly::AsyncServerSocket> socket(
+      s.release(), folly::DelayedDestruction::Destructor());
 
-    coral::Baton<> barrier;
+    folly::Baton<> barrier;
     acceptor_group_->add([&](){
-      socket->attachEventBase(coral::EventBaseManager::get()->getEventBase());
+      socket->attachEventBase(folly::EventBaseManager::get()->getEventBase());
       socket->listen(socketConfig.acceptBacklog);
       socket->startAccepting();
       barrier.post();
@@ -183,7 +183,7 @@ class ServerBootstrap {
     sockets_->push_back(socket);
   }
 
-  void bind(coral::SocketAddress& address) {
+  void bind(folly::SocketAddress& address) {
     bindImpl(-1, address);
   }
 
@@ -195,11 +195,11 @@ class ServerBootstrap {
    */
   void bind(int port) {
     CHECK(port >= 0);
-    coral::SocketAddress address;
+    folly::SocketAddress address;
     bindImpl(port, address);
   }
 
-  void bindImpl(int port, coral::SocketAddress& address) {
+  void bindImpl(int port, folly::SocketAddress& address) {
     if (!workerFactory_) {
       group(nullptr);
     }
@@ -210,12 +210,12 @@ class ServerBootstrap {
     }
 
     std::mutex sock_lock;
-    std::vector<std::shared_ptr<coral::AsyncSocketBase>> new_sockets;
+    std::vector<std::shared_ptr<folly::AsyncSocketBase>> new_sockets;
 
 
     std::exception_ptr exn;
 
-    auto startupFunc = [&](std::shared_ptr<coral::Baton<>> barrier){
+    auto startupFunc = [&](std::shared_ptr<folly::Baton<>> barrier){
 
       try {
         auto socket = socketFactory_->newSocket(
@@ -242,12 +242,12 @@ class ServerBootstrap {
 
     };
 
-    auto wait0 = std::make_shared<coral::Baton<>>();
+    auto wait0 = std::make_shared<folly::Baton<>>();
     acceptor_group_->add(std::bind(startupFunc, wait0));
     wait0->wait();
 
     for (size_t i = 1; i < acceptor_group_->numThreads(); i++) {
-      auto barrier = std::make_shared<coral::Baton<>>();
+      auto barrier = std::make_shared<folly::Baton<>>();
       acceptor_group_->add(std::bind(startupFunc, barrier));
       barrier->wait();
     }
@@ -311,7 +311,7 @@ class ServerBootstrap {
   /*
    * Get the list of listening sockets
    */
-  const std::vector<std::shared_ptr<coral::AsyncSocketBase>>&
+  const std::vector<std::shared_ptr<folly::AsyncSocketBase>>&
   getSockets() const {
     return *sockets_;
   }
@@ -332,8 +332,8 @@ class ServerBootstrap {
   std::shared_ptr<wangle::IOThreadPoolExecutor> io_group_;
 
   std::shared_ptr<ServerWorkerPool> workerFactory_;
-  std::shared_ptr<std::vector<std::shared_ptr<coral::AsyncSocketBase>>> sockets_{
-    std::make_shared<std::vector<std::shared_ptr<coral::AsyncSocketBase>>>()};
+  std::shared_ptr<std::vector<std::shared_ptr<folly::AsyncSocketBase>>> sockets_{
+    std::make_shared<std::vector<std::shared_ptr<folly::AsyncSocketBase>>>()};
 
   std::shared_ptr<AcceptorFactory> acceptorFactory_;
   std::shared_ptr<PipelineFactory<Pipeline>> childPipelineFactory_;
@@ -342,8 +342,8 @@ class ServerBootstrap {
   std::shared_ptr<ServerSocketFactory> socketFactory_{
     std::make_shared<AsyncServerSocketFactory>()};
 
-  std::unique_ptr<coral::Baton<>> stopBaton_{
-    coral::make_unique<coral::Baton<>>()};
+  std::unique_ptr<folly::Baton<>> stopBaton_{
+    folly::make_unique<folly::Baton<>>()};
   bool stopped_{false};
 };
 

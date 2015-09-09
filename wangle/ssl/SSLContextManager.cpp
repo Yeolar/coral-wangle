@@ -18,14 +18,14 @@
 #include <wangle/ssl/TLSTicketKeyManager.h>
 #include <wangle/ssl/TLSTicketKeySeeds.h>
 
-#include <coral/Conv.h>
-#include <coral/ScopeGuard.h>
-#include <coral/String.h>
+#include <folly/Conv.h>
+#include <folly/ScopeGuard.h>
+#include <folly/String.h>
 #include <functional>
 #include <openssl/asn1.h>
 #include <openssl/ssl.h>
 #include <string>
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 
 #define OPENSSL_MISSING_FEATURE(name) \
 do { \
@@ -33,7 +33,7 @@ do { \
 } while(0)
 
 
-using coral::SSLContext;
+using folly::SSLContext;
 using std::string;
 using std::shared_ptr;
 
@@ -105,7 +105,7 @@ void set_key_from_curve(SSL_CTX* ctx, const std::string& curveName) {
 // Helper to create TLSTicketKeyManger and aware of the needed openssl
 // version/feature.
 std::unique_ptr<TLSTicketKeyManager> createTicketManagerHelper(
-  std::shared_ptr<coral::SSLContext> ctx,
+  std::shared_ptr<folly::SSLContext> ctx,
   const TLSTicketKeySeeds* ticketSeeds,
   const SSLContextConfig& ctxConfig,
   SSLStats* stats) {
@@ -113,7 +113,7 @@ std::unique_ptr<TLSTicketKeyManager> createTicketManagerHelper(
   std::unique_ptr<TLSTicketKeyManager> ticketManager;
 #ifdef SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
   if (ticketSeeds && ctxConfig.sessionTicketEnabled) {
-    ticketManager = coral::make_unique<TLSTicketKeyManager>(ctx.get(), stats);
+    ticketManager = folly::make_unique<TLSTicketKeyManager>(ctx.get(), stats);
     ticketManager->setTLSTicketKeySeeds(
       ticketSeeds->oldSeeds,
       ticketSeeds->currentSeeds,
@@ -148,7 +148,7 @@ std::string flattenList(const std::list<std::string>& list) {
 SSLContextManager::~SSLContextManager() = default;
 
 SSLContextManager::SSLContextManager(
-  coral::EventBase* eventBase,
+  folly::EventBase* eventBase,
   const std::string& vipName,
   bool strict,
   SSLStats* stats) :
@@ -161,7 +161,7 @@ void SSLContextManager::addSSLContextConfig(
   const SSLContextConfig& ctxConfig,
   const SSLCacheOptions& cacheOptions,
   const TLSTicketKeySeeds* ticketSeeds,
-  const coral::SocketAddress& vipAddress,
+  const folly::SocketAddress& vipAddress,
   const std::shared_ptr<SSLCacheProvider>& externalCache) {
 
   unsigned numCerts = 0;
@@ -175,9 +175,9 @@ void SSLContextManager::addSSLContextConfig(
     } catch (const std::exception& ex) {
       // The exception isn't very useful without the certificate path name,
       // so throw a new exception that includes the path to the certificate.
-      string msg = coral::to<string>("error loading SSL certificate ",
+      string msg = folly::to<string>("error loading SSL certificate ",
                                      cert.certPath, ": ",
-                                     coral::exceptionStr(ex));
+                                     folly::exceptionStr(ex));
       LOG(ERROR) << msg;
       throw std::runtime_error(msg);
     }
@@ -186,10 +186,10 @@ void SSLContextManager::addSSLContextConfig(
     // are the same for all the certs specified for the SSL context.
     numCerts++;
     X509* x509 = getX509(sslCtx->getSSLCtx());
-    auto guard = coral::makeGuard([x509] { X509_free(x509); });
+    auto guard = folly::makeGuard([x509] { X509_free(x509); });
     auto cn = SSLUtil::getCommonName(x509);
     if (!cn) {
-      throw std::runtime_error(coral::to<string>("Cannot get CN for X509 ",
+      throw std::runtime_error(folly::to<string>("Cannot get CN for X509 ",
                                                  cert.certPath));
     }
     auto altName = SSLUtil::getSubjectAltName(x509);
@@ -205,19 +205,19 @@ void SSLContextManager::addSSLContextConfig(
       subjectAltName = std::move(altName);
     } else {
       if (commonName != *cn) {
-        throw std::runtime_error(coral::to<string>("X509 ", cert.certPath,
+        throw std::runtime_error(folly::to<string>("X509 ", cert.certPath,
                                           " does not have same CN as ",
                                           lastCertPath));
       }
       if (altName == nullptr) {
         if (subjectAltName != nullptr) {
-          throw std::runtime_error(coral::to<string>("X509 ", cert.certPath,
+          throw std::runtime_error(folly::to<string>("X509 ", cert.certPath,
                                             " does not have same SAN as ",
                                             lastCertPath));
         }
       } else {
         if ((subjectAltName == nullptr) || (*altName != *subjectAltName)) {
-          throw std::runtime_error(coral::to<string>("X509 ", cert.certPath,
+          throw std::runtime_error(folly::to<string>("X509 ", cert.certPath,
                                             " does not have same SAN as ",
                                             lastCertPath));
         }
@@ -246,9 +246,9 @@ void SSLContextManager::addSSLContextConfig(
       } catch (const std::exception& ex) {
         // Throw an error that includes the key path, so the user can tell
         // which key had a problem.
-        string msg = coral::to<string>("error loading private SSL key ",
+        string msg = folly::to<string>("error loading private SSL key ",
                                        cert.keyPath, ": ",
-                                       coral::exceptionStr(ex));
+                                       folly::exceptionStr(ex));
         LOG(ERROR) << msg;
         throw std::runtime_error(msg);
       }
@@ -301,9 +301,9 @@ void SSLContextManager::addSSLContextConfig(
       sslCtx->loadTrustedCertificates(ctxConfig.clientCAFile.c_str());
       sslCtx->loadClientCAList(ctxConfig.clientCAFile.c_str());
     } catch (const std::exception& ex) {
-      string msg = coral::to<string>("error loading client CA",
+      string msg = folly::to<string>("error loading client CA",
                                      ctxConfig.clientCAFile, ": ",
-                                     coral::exceptionStr(ex));
+                                     folly::exceptionStr(ex));
       LOG(ERROR) << msg;
       throw std::runtime_error(msg);
     }
@@ -320,7 +320,7 @@ void SSLContextManager::addSSLContextConfig(
       cacheOptions.maxSSLCacheSize > 0 &&
       cacheOptions.sslCacheFlushSize > 0) {
     sessionCacheManager =
-      coral::make_unique<SSLSessionCacheManager>(
+      folly::make_unique<SSLSessionCacheManager>(
         cacheOptions.maxSSLCacheSize,
         cacheOptions.sslCacheFlushSize,
         sslCtx.get(),
@@ -344,8 +344,8 @@ void SSLContextManager::addSSLContextConfig(
            std::move(ticketManager),
            ctxConfig.isDefault);
   } catch (const std::exception& ex) {
-    string msg = coral::to<string>("Error adding certificate : ",
-                                   coral::exceptionStr(ex));
+    string msg = folly::to<string>("Error adding certificate : ",
+                                   folly::exceptionStr(ex));
     LOG(ERROR) << msg;
     throw std::runtime_error(msg);
   }
@@ -369,7 +369,7 @@ SSLContextManager::serverNameCallback(SSL* ssl) {
   VLOG(6) << "Server Name (SNI TLS extension): '" << sn << "' ";
 
   // FIXME: This code breaks the abstraction. Suggestion?
-  coral::AsyncSSLSocket* sslSocket = coral::AsyncSSLSocket::getFromSSL(ssl);
+  folly::AsyncSSLSocket* sslSocket = folly::AsyncSSLSocket::getFromSSL(ssl);
   CHECK(sslSocket);
 
   DNString dnstr(sn, snLen);
@@ -399,7 +399,7 @@ SSLContextManager::serverNameCallback(SSL* ssl) {
   }
   while (count++ == 0 && noMatchFn_ && noMatchFn_(sn));
 
-  VLOG(6) << coral::stringPrintf("Cannot find a SSL_CTX for \"%s\"", sn);
+  VLOG(6) << folly::stringPrintf("Cannot find a SSL_CTX for \"%s\"", sn);
 
   if (clientHelloTLSExtStats_) {
     clientHelloTLSExtStats_->recordNotMatch();
@@ -411,7 +411,7 @@ SSLContextManager::serverNameCallback(SSL* ssl) {
 // Consolidate all SSL_CTX setup which depends on openssl version/feature
 void
 SSLContextManager::ctxSetupByOpensslFeature(
-  shared_ptr<coral::SSLContext> sslCtx,
+  shared_ptr<folly::SSLContext> sslCtx,
   const SSLContextConfig& ctxConfig) {
   // Disable compression - profiling shows this to be very expensive in
   // terms of CPU and memory consumption.
@@ -488,7 +488,7 @@ SSLContextManager::insert(shared_ptr<SSLContext> sslCtx,
                           std::unique_ptr<TLSTicketKeyManager> tmanager,
                           bool defaultFallback) {
   X509* x509 = getX509(sslCtx->getSSLCtx());
-  auto guard = coral::makeGuard([x509] { X509_free(x509); });
+  auto guard = folly::makeGuard([x509] { X509_free(x509); });
   auto cn = SSLUtil::getCommonName(x509);
   if (!cn) {
     throw std::runtime_error("Cannot get CN");
@@ -558,7 +558,7 @@ SSLContextManager::insertSSLCtxByDomainNameImpl(const char* dn, size_t len,
                                                 shared_ptr<SSLContext> sslCtx)
 {
   VLOG(4) <<
-    coral::stringPrintf("Adding CN/Subject-alternative-name \"%s\" for "
+    folly::stringPrintf("Adding CN/Subject-alternative-name \"%s\" for "
                         "SNI search", dn);
 
   // Only support wildcard domains which are prefixed exactly by "*." .
@@ -608,13 +608,13 @@ SSLContextManager::getSSLCtxBySuffix(const DNString& dnstr) const
     DNString suffixDNStr(dnstr, dot);
     const auto v = dnMap_.find(suffixDNStr);
     if (v != dnMap_.end()) {
-      VLOG(6) << coral::stringPrintf("\"%s\" is a willcard match to \"%s\"",
+      VLOG(6) << folly::stringPrintf("\"%s\" is a willcard match to \"%s\"",
                                      dnstr.c_str(), suffixDNStr.c_str());
       return v->second;
     }
   }
 
-  VLOG(6) << coral::stringPrintf("\"%s\" is not a wildcard match",
+  VLOG(6) << folly::stringPrintf("\"%s\" is not a wildcard match",
                                  dnstr.c_str());
   return shared_ptr<SSLContext>();
 }
@@ -624,11 +624,11 @@ SSLContextManager::getSSLCtx(const DNString& dnstr) const
 {
   const auto v = dnMap_.find(dnstr);
   if (v == dnMap_.end()) {
-    VLOG(6) << coral::stringPrintf("\"%s\" is not an exact match",
+    VLOG(6) << folly::stringPrintf("\"%s\" is not an exact match",
                                    dnstr.c_str());
     return shared_ptr<SSLContext>();
   } else {
-    VLOG(6) << coral::stringPrintf("\"%s\" is an exact match", dnstr.c_str());
+    VLOG(6) << folly::stringPrintf("\"%s\" is an exact match", dnstr.c_str());
     return v->second;
   }
 }

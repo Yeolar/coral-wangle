@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/SocketAddress.h>
+#include <folly/SocketAddress.h>
 
 namespace wangle {
 
@@ -24,12 +24,12 @@ public:
    * @param addr         IPv4 or IPv6 address of the network
    * @param prefixLen    Prefix length, in bits
    */
-  NetworkAddress(const coral::SocketAddress& addr,
+  NetworkAddress(const folly::SocketAddress& addr,
       unsigned prefixLen):
     addr_(addr), prefixLen_(prefixLen) {}
 
   /** Get the network address */
-  const coral::SocketAddress& getAddress() const {
+  const folly::SocketAddress& getAddress() const {
     return addr_;
   }
 
@@ -37,7 +37,7 @@ public:
   unsigned getPrefixLength() const { return prefixLen_; }
 
   /** Check whether a given address lies within the network */
-  bool contains(const coral::SocketAddress& addr) const {
+  bool contains(const folly::SocketAddress& addr) const {
     return addr_.prefixMatch(addr, prefixLen_);
   }
 
@@ -53,7 +53,7 @@ public:
   }
 
 private:
-  coral::SocketAddress addr_;
+  folly::SocketAddress addr_;
   unsigned prefixLen_;
 };
 

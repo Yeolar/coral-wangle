@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include <coral/futures/SharedPromise.h>
+#include <folly/futures/SharedPromise.h>
 #include <wangle/channel/Handler.h>
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/EventBaseManager.h>
-#include <coral/io/IOBuf.h>
-#include <coral/io/IOBufQueue.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/EventBaseManager.h>
+#include <folly/io/IOBuf.h>
+#include <folly/io/IOBufQueue.h>
 
 namespace wangle {
 
@@ -26,11 +26,11 @@ namespace wangle {
  * This handler may only be used in a single Pipeline.
  */
 class OutputBufferingHandler : public OutboundBytesToBytesHandler,
-                               protected coral::EventBase::LoopCallback {
+                               protected folly::EventBase::LoopCallback {
  public:
-  coral::Future<coral::Unit> write(
+  folly::Future<folly::Unit> write(
       Context* ctx,
-      std::unique_ptr<coral::IOBuf> buf) override {
+      std::unique_ptr<folly::IOBuf> buf) override {
     CHECK(buf);
     if (!queueSends_) {
       return ctx->fireWrite(std::move(buf));
@@ -50,30 +50,30 @@ class OutputBufferingHandler : public OutboundBytesToBytesHandler,
   }
 
   void runLoopCallback() noexcept override {
-    coral::MoveWrapper<coral::SharedPromise<coral::Unit>> sharedPromise;
+    folly::MoveWrapper<folly::SharedPromise<folly::Unit>> sharedPromise;
     std::swap(*sharedPromise, sharedPromise_);
     getContext()->fireWrite(std::move(sends_))
-      .then([sharedPromise](coral::Try<coral::Unit> t) mutable {
+      .then([sharedPromise](folly::Try<folly::Unit> t) mutable {
         sharedPromise->setTry(std::move(t));
       });
   }
 
-  coral::Future<coral::Unit> close(Context* ctx) override {
+  folly::Future<folly::Unit> close(Context* ctx) override {
     if (isLoopCallbackScheduled()) {
       cancelLoopCallback();
     }
 
     // If there are sends queued, cancel them
     sharedPromise_.setException(
-      coral::make_exception_wrapper<std::runtime_error>(
+      folly::make_exception_wrapper<std::runtime_error>(
         "close() called while sends still pending"));
     sends_.reset();
-    sharedPromise_ = coral::SharedPromise<coral::Unit>();
+    sharedPromise_ = folly::SharedPromise<folly::Unit>();
     return ctx->fireClose();
   }
 
-  coral::SharedPromise<coral::Unit> sharedPromise_;
-  std::unique_ptr<coral::IOBuf> sends_{nullptr};
+  folly::SharedPromise<folly::Unit> sharedPromise_;
+  std::unique_ptr<folly::IOBuf> sends_{nullptr};
   bool queueSends_{true};
 };
 

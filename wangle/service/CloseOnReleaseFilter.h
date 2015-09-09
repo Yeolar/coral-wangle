@@ -24,20 +24,20 @@ class CloseOnReleaseFilter : public ServiceFilter<Req, Resp> {
   explicit CloseOnReleaseFilter(std::shared_ptr<Service<Req, Resp>> service)
       : ServiceFilter<Req, Resp>(service) {}
 
-  coral::Future<Resp> operator()(Req req) override {
+  folly::Future<Resp> operator()(Req req) override {
     if (!released ){
       return (*this->service_)(std::move(req));
     } else {
-      return coral::makeFuture<Resp>(
-        coral::make_exception_wrapper<std::runtime_error>("Service Closed"));
+      return folly::makeFuture<Resp>(
+        folly::make_exception_wrapper<std::runtime_error>("Service Closed"));
     }
   }
 
-  coral::Future<coral::Unit> close() override {
+  folly::Future<folly::Unit> close() override {
     if (!released.exchange(true)) {
       return this->service_->close();
     } else {
-      return coral::makeFuture();
+      return folly::makeFuture();
     }
   }
  private:

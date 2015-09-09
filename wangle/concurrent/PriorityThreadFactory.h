@@ -35,8 +35,8 @@ class PriorityThreadFactory : public ThreadFactory {
     : factory_(std::move(factory))
     , priority_(priority) {}
 
-  std::thread newThread(coral::Func&& func) override {
-    coral::MoveWrapper<coral::Func> movedFunc(std::move(func));
+  std::thread newThread(folly::Func&& func) override {
+    folly::MoveWrapper<folly::Func> movedFunc(std::move(func));
     int priority = priority_;
     return factory_->newThread([priority,movedFunc] () {
       if (setpriority(PRIO_PROCESS, 0, priority) != 0) {

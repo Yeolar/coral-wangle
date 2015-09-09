@@ -9,7 +9,7 @@
  */
 #include <wangle/ssl/SSLUtil.h>
 
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 
 #if OPENSSL_VERSION_NUMBER >= 0x1000105fL
 #define OPENSSL_GE_101 1
@@ -35,18 +35,18 @@ std::unique_ptr<std::string> SSLUtil::getCommonName(const X509* cert) {
     return nullptr;
   } else {
     cn[ub_common_name] = '\0';
-    return coral::make_unique<std::string>(cn);
+    return folly::make_unique<std::string>(cn);
   }
 }
 
 std::unique_ptr<std::list<std::string>> SSLUtil::getSubjectAltName(
     const X509* cert) {
 #ifdef OPENSSL_GE_101
-  auto nameList = coral::make_unique<std::list<std::string>>();
+  auto nameList = folly::make_unique<std::list<std::string>>();
   GENERAL_NAMES* names = (GENERAL_NAMES*)X509_get_ext_d2i(
       (X509*)cert, NID_subject_alt_name, nullptr, nullptr);
   if (names) {
-    auto guard = coral::makeGuard([names] { GENERAL_NAMES_free(names); });
+    auto guard = folly::makeGuard([names] { GENERAL_NAMES_free(names); });
     size_t count = sk_GENERAL_NAME_num(names);
     CHECK(count < std::numeric_limits<int>::max());
     for (int i = 0; i < (int)count; ++i) {

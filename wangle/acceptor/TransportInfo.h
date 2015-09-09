@@ -15,7 +15,7 @@
 #include <netinet/tcp.h>
 #include <string>
 
-namespace coral {
+namespace folly {
 
 class AsyncSocket;
 
@@ -137,7 +137,7 @@ struct TransportInfo {
    * If the client passed through one of our L4 proxies (using PROXY Protocol),
    * then this will contain the IP address of the proxy host.
    */
-  std::shared_ptr<coral::SocketAddress> clientAddrOriginal;
+  std::shared_ptr<folly::SocketAddress> clientAddrOriginal;
 
   /**
    * header bytes read
@@ -288,20 +288,20 @@ struct TransportInfo {
   /*
    * initialize the fields related with tcp_info
    */
-  bool initWithSocket(const coral::AsyncSocket* sock);
+  bool initWithSocket(const folly::AsyncSocket* sock);
 
   /*
    * Get the kernel's estimate of round-trip time (RTT) to the transport's peer
    * in microseconds. Returns -1 on error.
    */
-  static int64_t readRTT(const coral::AsyncSocket* sock);
+  static int64_t readRTT(const folly::AsyncSocket* sock);
 
 #if defined(__linux__) || defined(__FreeBSD__)
   /*
    * perform the getsockopt(2) syscall to fetch TCP info for a given socket
    */
   static bool readTcpInfo(struct tcp_info* tcpinfo,
-                          const coral::AsyncSocket* sock);
+                          const folly::AsyncSocket* sock);
 #endif
 };
 

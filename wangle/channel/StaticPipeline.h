@@ -49,7 +49,7 @@ class StaticPipeline<R, W> : public Pipeline<R, W> {
 template <class Handler>
 class BaseWithOptional {
  protected:
-  coral::Optional<Handler> handler_;
+  folly::Optional<Handler> handler_;
 };
 
 template <class Handler>

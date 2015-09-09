@@ -19,9 +19,9 @@
 
 #include <chrono>
 #include <event.h>
-#include <coral/io/async/AsyncSSLSocket.h>
-#include <coral/io/async/AsyncServerSocket.h>
-#include <coral/io/async/AsyncUDPServerSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncServerSocket.h>
+#include <folly/io/async/AsyncUDPServerSocket.h>
 
 namespace wangle {
 
@@ -42,9 +42,9 @@ class SSLContextManager;
  * also tracks all outstanding connections that it has accepted.
  */
 class Acceptor :
-  public coral::AsyncServerSocket::AcceptCallback,
+  public folly::AsyncServerSocket::AcceptCallback,
   public wangle::ConnectionManager::Callback,
-  public coral::AsyncUDPServerSocket::Callback  {
+  public folly::AsyncUDPServerSocket::Callback  {
  public:
 
   enum class State : uint32_t {
@@ -73,8 +73,8 @@ class Acceptor :
    * This method will be called from the AsyncServerSocket's primary thread,
    * not the specified EventBase thread.
    */
-  virtual void init(coral::AsyncServerSocket* serverSocket,
-                    coral::EventBase* eventBase);
+  virtual void init(folly::AsyncServerSocket* serverSocket,
+                    folly::EventBase* eventBase);
 
   /**
    * Dynamically add a new SSLContextConfig
@@ -96,7 +96,7 @@ class Acceptor :
   /**
    * Access the Acceptor's event base.
    */
-  virtual coral::EventBase* getEventBase() const { return base_; }
+  virtual folly::EventBase* getEventBase() const { return base_; }
 
   /**
    * Access the Acceptor's downstream (client-side) ConnectionManager
@@ -158,7 +158,7 @@ class Acceptor :
    */
   virtual void onDoneAcceptingConnection(
     int fd,
-    const coral::SocketAddress& clientAddr,
+    const folly::SocketAddress& clientAddr,
     std::chrono::steady_clock::time_point acceptTime
   ) noexcept;
 
@@ -167,7 +167,7 @@ class Acceptor :
    */
   void processEstablishedConnection(
     int fd,
-    const coral::SocketAddress& clientAddr,
+    const folly::SocketAddress& clientAddr,
     std::chrono::steady_clock::time_point acceptTime,
     TransportInfo& tinfo
   ) noexcept;
@@ -176,9 +176,9 @@ class Acceptor :
    * Creates and starts the handshake helper.
    */
   virtual void startHandshakeHelper(
-    coral::AsyncSSLSocket::UniquePtr sslSock,
+    folly::AsyncSSLSocket::UniquePtr sslSock,
     Acceptor* acceptor,
-    const coral::SocketAddress& clientAddr,
+    const folly::SocketAddress& clientAddr,
     std::chrono::steady_clock::time_point acceptTime,
     TransportInfo& tinfo) noexcept;
 
@@ -200,8 +200,8 @@ class Acceptor :
    * Wrapper for connectionReady() that decrements the count of
    * pending SSL connections. This should normally not be overridden.
    */
-  virtual void sslConnectionReady(coral::AsyncSocket::UniquePtr sock,
-      const coral::SocketAddress& clientAddr,
+  virtual void sslConnectionReady(folly::AsyncSocket::UniquePtr sock,
+      const folly::SocketAddress& clientAddr,
       const std::string& nextProtocol,
       SecureTransportType secureTransportType,
       TransportInfo& tinfo);
@@ -221,7 +221,7 @@ class Acceptor :
    * implementation. Also visible in case a subclass wishes to do additional
    * things w/ the event loop (e.g. in attach()).
    */
-  coral::EventBase* base_{nullptr};
+  folly::EventBase* base_{nullptr};
 
   virtual uint64_t getConnectionCountForLoadShedding(void) const { return 0; }
 
@@ -229,7 +229,7 @@ class Acceptor :
    * Hook for subclasses to drop newly accepted connections prior
    * to handshaking.
    */
-  virtual bool canAccept(const coral::SocketAddress&);
+  virtual bool canAccept(const folly::SocketAddress&);
 
   /**
    * Invoked when a new connection is created. This is where application starts
@@ -249,8 +249,8 @@ class Acceptor :
    *                            requested by the client.
    */
   virtual void onNewConnection(
-      coral::AsyncSocket::UniquePtr /*sock*/,
-      const coral::SocketAddress* /*address*/,
+      folly::AsyncSocket::UniquePtr /*sock*/,
+      const folly::SocketAddress* /*address*/,
       const std::string& /*nextProtocolName*/,
       SecureTransportType /*secureTransportType*/,
       const TransportInfo& /*tinfo*/) {}
@@ -258,21 +258,21 @@ class Acceptor :
   void onListenStarted() noexcept {}
   void onListenStopped() noexcept {}
   void onDataAvailable(
-    std::shared_ptr<coral::AsyncUDPSocket> /*socket*/,
-    const coral::SocketAddress&,
-    std::unique_ptr<coral::IOBuf>, bool) noexcept {}
+    std::shared_ptr<folly::AsyncUDPSocket> /*socket*/,
+    const folly::SocketAddress&,
+    std::unique_ptr<folly::IOBuf>, bool) noexcept {}
 
-  virtual coral::AsyncSocket::UniquePtr makeNewAsyncSocket(
-      coral::EventBase* base,
+  virtual folly::AsyncSocket::UniquePtr makeNewAsyncSocket(
+      folly::EventBase* base,
       int fd) {
-    return coral::AsyncSocket::UniquePtr(
-        new coral::AsyncSocket(base, fd));
+    return folly::AsyncSocket::UniquePtr(
+        new folly::AsyncSocket(base, fd));
   }
 
-  virtual coral::AsyncSSLSocket::UniquePtr makeNewAsyncSSLSocket(
-    const std::shared_ptr<coral::SSLContext>& ctx, coral::EventBase* base, int fd) {
-    return coral::AsyncSSLSocket::UniquePtr(
-        new coral::AsyncSSLSocket(
+  virtual folly::AsyncSSLSocket::UniquePtr makeNewAsyncSSLSocket(
+    const std::shared_ptr<folly::SSLContext>& ctx, folly::EventBase* base, int fd) {
+    return folly::AsyncSSLSocket::UniquePtr(
+        new folly::AsyncSSLSocket(
           ctx,
           base,
           fd,
@@ -284,7 +284,7 @@ class Acceptor :
    * Hook for subclasses to record stats about SSL connection establishment.
    */
   virtual void updateSSLStats(
-      const coral::AsyncSSLSocket* /*sock*/,
+      const folly::AsyncSSLSocket* /*sock*/,
       std::chrono::milliseconds /*acceptLatency*/,
       SSLErrorEnum /*error*/) noexcept {}
 
@@ -301,7 +301,7 @@ class Acceptor :
 
   // AsyncServerSocket::AcceptCallback methods
   void connectionAccepted(int fd,
-      const coral::SocketAddress& clientAddr)
+      const folly::SocketAddress& clientAddr)
       noexcept;
   void acceptError(const std::exception& ex) noexcept;
   void acceptStopped() noexcept;
@@ -318,8 +318,8 @@ class Acceptor :
    * for SSL connections.
    */
    void connectionReady(
-      coral::AsyncSocket::UniquePtr sock,
-      const coral::SocketAddress& clientAddr,
+      folly::AsyncSocket::UniquePtr sock,
+      const folly::SocketAddress& clientAddr,
       const std::string& nextProtocolName,
       SecureTransportType secureTransportType,
       TransportInfo& tinfo);
@@ -336,7 +336,7 @@ class Acceptor :
   /**
    * Socket options to apply to the client socket
    */
-  coral::AsyncSocket::OptionMap socketOptions_;
+  folly::AsyncSocket::OptionMap socketOptions_;
 
   std::unique_ptr<SSLContextManager> sslCtxManager_;
 
@@ -369,7 +369,7 @@ class Acceptor :
 
 class AcceptorFactory {
  public:
-  virtual std::shared_ptr<Acceptor> newAcceptor(coral::EventBase*) = 0;
+  virtual std::shared_ptr<Acceptor> newAcceptor(folly::EventBase*) = 0;
   virtual ~AcceptorFactory() = default;
 };
 

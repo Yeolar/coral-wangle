@@ -39,8 +39,8 @@ if(APPLE)
 endif()
 
 # Required packages
-find_package(Coral REQUIRED)
-set(WANGLE_HAVE_CORAL ${CORAL_FOUND})
+find_package(Folly REQUIRED)
+set(WANGLE_HAVE_FOLLY ${FOLLY_FOUND})
 find_package(Boost REQUIRED COMPONENTS system thread)
 set(WANGLE_HAVE_BOOST ${Boost_FOUND})
 find_package(GFlags REQUIRED)
@@ -64,7 +64,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 
 # Link libraries
 link_libraries(
-    ${CORAL_LIBRARIES}
+    ${FOLLY_LIBRARIES}
     ${Boost_LIBRARIES}
     ${GFLAGS_LIBRARIES}
     ${GLOG_LIBRARIES}

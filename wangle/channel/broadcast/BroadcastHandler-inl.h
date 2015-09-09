@@ -23,7 +23,7 @@ void BroadcastHandler<T>::readEOF(Context* ctx) {
 
 template <typename T>
 void BroadcastHandler<T>::readException(Context* ctx,
-                                        coral::exception_wrapper ex) {
+                                        folly::exception_wrapper ex) {
   LOG(ERROR) << "Error while reading from upstream for broadcast: "
              << exceptionStr(ex);
 

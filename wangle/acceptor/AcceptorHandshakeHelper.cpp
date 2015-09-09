@@ -7,7 +7,7 @@ namespace wangle {
 
 static const std::string empty_string;
 
-using namespace coral;
+using namespace folly;
 
 void AcceptorHandshakeHelper::start() noexcept {
   socket_->sslAccept(this);

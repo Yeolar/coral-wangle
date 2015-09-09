@@ -12,7 +12,7 @@
 
 #include <wangle/acceptor/Acceptor.h>
 #include <wangle/bootstrap/ServerSocketFactory.h>
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <wangle/concurrent/IOThreadPoolExecutor.h>
 #include <wangle/acceptor/ManagedConnection.h>
 #include <wangle/channel/Pipeline.h>
@@ -26,7 +26,7 @@ class ServerAcceptor
     , public wangle::InboundHandler<void*> {
  public:
   typedef std::unique_ptr<Pipeline,
-                          coral::DelayedDestruction::Destructor> PipelinePtr;
+                          folly::DelayedDestruction::Destructor> PipelinePtr;
 
   class ServerConnection : public wangle::ManagedConnection,
                            public wangle::PipelineManager {
@@ -64,7 +64,7 @@ class ServerAcceptor
   explicit ServerAcceptor(
         std::shared_ptr<PipelineFactory<Pipeline>> pipelineFactory,
         std::shared_ptr<wangle::Pipeline<void*>> acceptorPipeline,
-        coral::EventBase* base)
+        folly::EventBase* base)
       : Acceptor(ServerSocketConfig())
       , base_(base)
       , childPipelineFactory_(pipelineFactory)
@@ -77,13 +77,13 @@ class ServerAcceptor
   }
 
   void read(Context* ctx, void* conn) {
-    coral::AsyncSocket::UniquePtr transport((coral::AsyncSocket*)conn);
+    folly::AsyncSocket::UniquePtr transport((folly::AsyncSocket*)conn);
       std::unique_ptr<Pipeline,
-                       coral::DelayedDestruction::Destructor>
+                       folly::DelayedDestruction::Destructor>
       pipeline(childPipelineFactory_->newPipeline(
-        std::shared_ptr<coral::AsyncSocket>(
+        std::shared_ptr<folly::AsyncSocket>(
           transport.release(),
-          coral::DelayedDestruction::Destructor())));
+          folly::DelayedDestruction::Destructor())));
     pipeline->transportActive();
     auto connection = new ServerConnection(std::move(pipeline));
     Acceptor::addConnection(connection);
@@ -91,8 +91,8 @@ class ServerAcceptor
 
   /* See Acceptor::onNewConnection for details */
   void onNewConnection(
-    coral::AsyncSocket::UniquePtr transport,
-    const coral::SocketAddress* address,
+    folly::AsyncSocket::UniquePtr transport,
+    const folly::SocketAddress* address,
     const std::string& nextProtocolName,
     SecureTransportType secureTransportType,
     const TransportInfo& tinfo) {
@@ -100,15 +100,15 @@ class ServerAcceptor
   }
 
   // UDP thunk
-  void onDataAvailable(std::shared_ptr<coral::AsyncUDPSocket> socket,
-                       const coral::SocketAddress& addr,
-                       std::unique_ptr<coral::IOBuf> buf,
+  void onDataAvailable(std::shared_ptr<folly::AsyncUDPSocket> socket,
+                       const folly::SocketAddress& addr,
+                       std::unique_ptr<folly::IOBuf> buf,
                        bool truncated) noexcept {
     acceptorPipeline_->read(buf.release());
   }
 
  private:
-  coral::EventBase* base_;
+  folly::EventBase* base_;
 
   std::shared_ptr<PipelineFactory<Pipeline>> childPipelineFactory_;
   std::shared_ptr<wangle::Pipeline<void*>> acceptorPipeline_;
@@ -123,7 +123,7 @@ class ServerAcceptorFactory : public AcceptorFactory {
     : factory_(factory)
     , pipeline_(pipeline) {}
 
-  std::shared_ptr<Acceptor> newAcceptor(coral::EventBase* base) {
+  std::shared_ptr<Acceptor> newAcceptor(folly::EventBase* base) {
     std::shared_ptr<wangle::Pipeline<void*>> pipeline(
         pipeline_->newPipeline(nullptr));
     return std::make_shared<ServerAcceptor<Pipeline>>(factory_, pipeline, base);
@@ -139,7 +139,7 @@ class ServerWorkerPool : public wangle::ThreadPoolExecutor::Observer {
   explicit ServerWorkerPool(
     std::shared_ptr<AcceptorFactory> acceptorFactory,
     wangle::IOThreadPoolExecutor* exec,
-    std::shared_ptr<std::vector<std::shared_ptr<coral::AsyncSocketBase>>> sockets,
+    std::shared_ptr<std::vector<std::shared_ptr<folly::AsyncSocketBase>>> sockets,
     std::shared_ptr<ServerSocketFactory> socketFactory)
       : acceptorFactory_(acceptorFactory)
       , exec_(exec)
@@ -169,7 +169,7 @@ class ServerWorkerPool : public wangle::ThreadPoolExecutor::Observer {
            std::shared_ptr<Acceptor>> workers_;
   std::shared_ptr<AcceptorFactory> acceptorFactory_;
   wangle::IOThreadPoolExecutor* exec_{nullptr};
-  std::shared_ptr<std::vector<std::shared_ptr<coral::AsyncSocketBase>>> sockets_;
+  std::shared_ptr<std::vector<std::shared_ptr<folly::AsyncSocketBase>>> sockets_;
   std::shared_ptr<ServerSocketFactory> socketFactory_;
 };
 
@@ -184,7 +184,7 @@ class DefaultAcceptPipelineFactory
     : public PipelineFactory<wangle::Pipeline<void*>> {
 
  public:
-  wangle::AcceptPipeline::UniquePtr newPipeline(std::shared_ptr<coral::AsyncSocket>) {
+  wangle::AcceptPipeline::UniquePtr newPipeline(std::shared_ptr<folly::AsyncSocket>) {
     return wangle::AcceptPipeline::UniquePtr(new wangle::AcceptPipeline);
   }
 };

@@ -4,7 +4,7 @@
 #include <wangle/channel/broadcast/test/Mocks.h>
 
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 using namespace testing;
 
 class BroadcastPoolTest : public Test {
@@ -17,7 +17,7 @@ class BroadcastPoolTest : public Test {
 
     pipelineFactory =
         std::make_shared<StrictMock<MockBroadcastPipelineFactory>>();
-    pool = coral::make_unique<BroadcastPool<int, std::string>>(serverPool,
+    pool = folly::make_unique<BroadcastPool<int, std::string>>(serverPool,
                                                                pipelineFactory);
   }
 
@@ -42,7 +42,7 @@ class BroadcastPoolTest : public Test {
   };
 
   void startServer() {
-    server = coral::make_unique<ServerBootstrap<DefaultPipeline>>();
+    server = folly::make_unique<ServerBootstrap<DefaultPipeline>>();
     server->childPipeline(std::make_shared<ServerPipelineFactory>());
     server->bind(0);
     server->getSockets()[0]->getAddress(&addr);

@@ -9,13 +9,13 @@
  */
 
 #pragma once
-#include <coral/Executor.h>
+#include <folly/Executor.h>
 #include <wangle/concurrent/LifoSemMPMCQueue.h>
 #include <wangle/concurrent/NamedThreadFactory.h>
 #include <wangle/deprecated/rx/Observable.h>
-#include <coral/Baton.h>
-#include <coral/Memory.h>
-#include <coral/RWSpinLock.h>
+#include <folly/Baton.h>
+#include <folly/Memory.h>
+#include <folly/RWSpinLock.h>
 
 #include <algorithm>
 #include <mutex>
@@ -25,7 +25,7 @@
 
 namespace wangle {
 
-class ThreadPoolExecutor : public virtual coral::Executor {
+class ThreadPoolExecutor : public virtual folly::Executor {
  public:
   explicit ThreadPoolExecutor(
       size_t numThreads,
@@ -33,11 +33,11 @@ class ThreadPoolExecutor : public virtual coral::Executor {
 
   ~ThreadPoolExecutor();
 
-  virtual void add(coral::Func func) override = 0;
+  virtual void add(folly::Func func) override = 0;
   virtual void add(
-      coral::Func func,
+      folly::Func func,
       std::chrono::milliseconds expiration,
-      coral::Func expireCallback) = 0;
+      folly::Func expireCallback) = 0;
 
   void setThreadFactory(std::shared_ptr<ThreadFactory> threadFactory) {
     CHECK(numThreads() == 0);
@@ -116,7 +116,7 @@ class ThreadPoolExecutor : public virtual coral::Executor {
   // Prerequisite: threadListLock_ writelocked
   void removeThreads(size_t n, bool isJoin);
 
-  struct CORAL_ALIGN_TO_AVOID_FALSE_SHARING Thread : public ThreadHandle {
+  struct FOLLY_ALIGN_TO_AVOID_FALSE_SHARING Thread : public ThreadHandle {
     explicit Thread(ThreadPoolExecutor* pool)
       : id(nextId++),
         handle(),
@@ -129,7 +129,7 @@ class ThreadPoolExecutor : public virtual coral::Executor {
     uint64_t id;
     std::thread handle;
     bool idle;
-    coral::Baton<> startupBaton;
+    folly::Baton<> startupBaton;
     std::shared_ptr<Subject<TaskStats>> taskStatsSubject;
   };
 
@@ -137,14 +137,14 @@ class ThreadPoolExecutor : public virtual coral::Executor {
 
   struct Task {
     explicit Task(
-        coral::Func&& func,
+        folly::Func&& func,
         std::chrono::milliseconds expiration,
-        coral::Func&& expireCallback);
-    coral::Func func_;
+        folly::Func&& expireCallback);
+    folly::Func func_;
     TaskStats stats_;
     std::chrono::steady_clock::time_point enqueueTime_;
     std::chrono::milliseconds expiration_;
-    coral::Func expireCallback_;
+    folly::Func expireCallback_;
   };
 
   static void runTask(const ThreadPtr& thread, Task&& task);
@@ -210,14 +210,14 @@ class ThreadPoolExecutor : public virtual coral::Executor {
     size_t size() override;
 
    private:
-    coral::LifoSem sem_;
+    folly::LifoSem sem_;
     std::mutex mutex_;
     std::queue<ThreadPtr> queue_;
   };
 
   std::shared_ptr<ThreadFactory> threadFactory_;
   ThreadList threadList_;
-  coral::RWSpinLock threadListLock_;
+  folly::RWSpinLock threadListLock_;
   StoppedThreadQueue stoppedThreads_;
   std::atomic<bool> isJoin_; // whether the current downsizing is a join
 

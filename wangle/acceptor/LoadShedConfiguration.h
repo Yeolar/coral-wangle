@@ -10,8 +10,8 @@
 #pragma once
 
 #include <chrono>
-#include <coral/Range.h>
-#include <coral/SocketAddress.h>
+#include <folly/Range.h>
+#include <folly/SocketAddress.h>
 #include <glog/logging.h>
 #include <list>
 #include <set>
@@ -30,20 +30,20 @@ class LoadShedConfiguration {
   // Comparison function for SocketAddress that disregards the port
   struct AddressOnlyCompare {
     bool operator()(
-     const coral::SocketAddress& addr1,
-     const coral::SocketAddress& addr2) const {
+     const folly::SocketAddress& addr1,
+     const folly::SocketAddress& addr2) const {
       return addr1.getIPAddress() < addr2.getIPAddress();
     }
   };
 
-  typedef std::set<coral::SocketAddress, AddressOnlyCompare> AddressSet;
+  typedef std::set<folly::SocketAddress, AddressOnlyCompare> AddressSet;
   typedef std::set<NetworkAddress> NetworkSet;
 
   LoadShedConfiguration() = default;
 
   ~LoadShedConfiguration() = default;
 
-  void addWhitelistAddr(coral::StringPiece);
+  void addWhitelistAddr(folly::StringPiece);
 
   /**
    * Set/get the set of IPs that should be whitelisted through even when we're
@@ -102,7 +102,7 @@ class LoadShedConfiguration {
   }
   std::chrono::milliseconds getLoadUpdatePeriod() const { return period_; }
 
-  bool isWhitelisted(const coral::SocketAddress& addr) const;
+  bool isWhitelisted(const folly::SocketAddress& addr) const;
 
  private:
 

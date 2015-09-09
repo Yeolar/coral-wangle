@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <coral/io/Cursor.h>
+#include <folly/io/Cursor.h>
 #include <wangle/channel/Handler.h>
 
 namespace wangle {
@@ -48,9 +48,9 @@ class LengthFieldPrepender : public OutboundBytesToBytesHandler {
                                 bool lengthIncludesLengthField = false,
                                 bool networkByteOrder = true);
 
-  coral::Future<coral::Unit> write(
+  folly::Future<folly::Unit> write(
       Context* ctx,
-      std::unique_ptr<coral::IOBuf> buf);
+      std::unique_ptr<folly::IOBuf> buf);
 
  private:
   int lengthFieldLength_;

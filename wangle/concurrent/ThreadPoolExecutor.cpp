@@ -10,8 +10,8 @@
 
 #include <wangle/concurrent/ThreadPoolExecutor.h>
 
-using coral::Func;
-using coral::RWSpinLock;
+using folly::Func;
+using folly::RWSpinLock;
 
 namespace wangle {
 

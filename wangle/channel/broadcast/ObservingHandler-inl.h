@@ -39,7 +39,7 @@ void ObservingHandler<T, R>::readEOF(Context* ctx) {
 
 template <typename T, typename R>
 void ObservingHandler<T, R>::readException(Context* ctx,
-                                        coral::exception_wrapper ex) {
+                                        folly::exception_wrapper ex) {
   LOG(ERROR) << "Error on read: " << exceptionStr(ex);
   closeHandler();
 }
@@ -54,7 +54,7 @@ void ObservingHandler<T, R>::onNext(const T& data) {
 }
 
 template <typename T, typename R>
-void ObservingHandler<T, R>::onError(coral::exception_wrapper ex) {
+void ObservingHandler<T, R>::onError(folly::exception_wrapper ex) {
   LOG(ERROR) << "Error observing a broadcast: " << exceptionStr(ex);
 
   // broadcastHandler_ will clear its subscribers and delete itself

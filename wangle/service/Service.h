@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include <coral/futures/Future.h>
-#include <coral/Memory.h>
+#include <folly/futures/Future.h>
+#include <folly/Memory.h>
 
 #include <wangle/bootstrap/ServerBootstrap.h>
 #include <wangle/bootstrap/ClientBootstrap.h>
@@ -27,10 +27,10 @@ namespace wangle {
 template <typename Req, typename Resp = Req>
 class Service {
  public:
-  virtual coral::Future<Resp> operator()(Req request) = 0;
+  virtual folly::Future<Resp> operator()(Req request) = 0;
   virtual ~Service() = default;
-  virtual coral::Future<coral::Unit> close() {
-    return coral::makeFuture();
+  virtual folly::Future<folly::Unit> close() {
+    return folly::makeFuture();
   }
   virtual bool isAvailable() {
     return true;
@@ -64,7 +64,7 @@ class ServiceFilter : public Service<ReqA, RespA> {
       : service_(service) {}
   virtual ~ServiceFilter() = default;
 
-  virtual coral::Future<coral::Unit> close() override {
+  virtual folly::Future<folly::Unit> close() override {
     return service_->close();
   }
 
@@ -85,7 +85,7 @@ class ServiceFilter : public Service<ReqA, RespA> {
 template <typename Pipeline, typename Req, typename Resp>
 class ServiceFactory {
  public:
-  virtual coral::Future<std::shared_ptr<Service<Req, Resp>>> operator()(
+  virtual folly::Future<std::shared_ptr<Service<Req, Resp>>> operator()(
     std::shared_ptr<ClientBootstrap<Pipeline>> client) = 0;
 
   virtual ~ServiceFactory() = default;
@@ -99,7 +99,7 @@ class ConstFactory : public ServiceFactory<Pipeline, Req, Resp> {
   explicit ConstFactory(std::shared_ptr<Service<Req, Resp>> service)
       : service_(service) {}
 
-  virtual coral::Future<std::shared_ptr<Service<Req, Resp>>> operator()(
+  virtual folly::Future<std::shared_ptr<Service<Req, Resp>>> operator()(
     std::shared_ptr<ClientBootstrap<Pipeline>> client) {
     return service_;
   }
@@ -129,7 +129,7 @@ class FactoryToService : public Service<Req, Resp> {
       : factory_(factory) {}
   virtual ~FactoryToService() = default;
 
-  virtual coral::Future<Resp> operator()(Req request) override {
+  virtual folly::Future<Resp> operator()(Req request) override {
     DCHECK(factory_);
     return ((*factory_)(nullptr)).then(
       [=](std::shared_ptr<Service<Req, Resp>> service)

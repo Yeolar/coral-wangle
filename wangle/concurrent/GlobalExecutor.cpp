@@ -8,12 +8,12 @@
  *
  */
 
-#include <coral/Singleton.h>
+#include <folly/Singleton.h>
 #include <wangle/concurrent/IOExecutor.h>
 #include <wangle/concurrent/IOThreadPoolExecutor.h>
-#include <coral/futures/InlineExecutor.h>
+#include <folly/futures/InlineExecutor.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 namespace {

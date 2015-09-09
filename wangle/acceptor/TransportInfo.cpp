@@ -11,7 +11,7 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 
 using std::chrono::microseconds;
 using std::map;
@@ -19,7 +19,7 @@ using std::string;
 
 namespace wangle {
 
-bool TransportInfo::initWithSocket(const coral::AsyncSocket* sock) {
+bool TransportInfo::initWithSocket(const folly::AsyncSocket* sock) {
 #if defined(__linux__) || defined(__FreeBSD__)
   if (!TransportInfo::readTcpInfo(&tcpinfo, sock)) {
     tcpinfoErrno = errno;
@@ -55,7 +55,7 @@ bool TransportInfo::initWithSocket(const coral::AsyncSocket* sock) {
   return true;
 }
 
-int64_t TransportInfo::readRTT(const coral::AsyncSocket* sock) {
+int64_t TransportInfo::readRTT(const folly::AsyncSocket* sock) {
 #if defined(__linux__) || defined(__FreeBSD__)
   struct tcp_info tcpinfo;
   if (!TransportInfo::readTcpInfo(&tcpinfo, sock)) {
@@ -69,7 +69,7 @@ int64_t TransportInfo::readRTT(const coral::AsyncSocket* sock) {
 
 #if defined(__linux__) || defined(__FreeBSD__)
 bool TransportInfo::readTcpInfo(struct tcp_info* tcpinfo,
-                                const coral::AsyncSocket* sock) {
+                                const folly::AsyncSocket* sock) {
   socklen_t len = sizeof(struct tcp_info);
   if (!sock) {
     return false;

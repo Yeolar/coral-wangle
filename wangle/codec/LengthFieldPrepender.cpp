@@ -10,9 +10,9 @@
 
 #include <wangle/codec/LengthFieldPrepender.h>
 
-using coral::Future;
-using coral::Unit;
-using coral::IOBuf;
+using folly::Future;
+using folly::Unit;
+using folly::IOBuf;
 
 namespace wangle {
 
@@ -44,7 +44,7 @@ Future<Unit> LengthFieldPrepender::write(
 
   auto len = IOBuf::create(lengthFieldLength_);
   len->append(lengthFieldLength_);
-  coral::io::RWPrivateCursor c(len.get());
+  folly::io::RWPrivateCursor c(len.get());
 
   switch (lengthFieldLength_) {
     case 1: {

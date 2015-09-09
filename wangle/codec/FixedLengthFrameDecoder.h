@@ -36,8 +36,8 @@ class FixedLengthFrameDecoder : public ByteToByteDecoder {
   explicit FixedLengthFrameDecoder(size_t length) : length_(length) {}
 
   bool decode(Context* ctx,
-              coral::IOBufQueue& q,
-              std::unique_ptr<coral::IOBuf>& result,
+              folly::IOBufQueue& q,
+              std::unique_ptr<folly::IOBuf>& result,
               size_t& needed) override {
     if (q.chainLength() < length_) {
       needed = length_ - q.chainLength();

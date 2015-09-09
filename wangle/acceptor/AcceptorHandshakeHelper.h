@@ -1,21 +1,21 @@
 #pragma once
 
 #include <chrono>
-#include <coral/SocketAddress.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/SocketAddress.h>
+#include <folly/io/async/AsyncSocket.h>
 #include <wangle/acceptor/Acceptor.h>
 #include <wangle/acceptor/ManagedConnection.h>
 #include <wangle/acceptor/TransportInfo.h>
 
 namespace wangle {
 
-class AcceptorHandshakeHelper : public coral::AsyncSSLSocket::HandshakeCB,
+class AcceptorHandshakeHelper : public folly::AsyncSSLSocket::HandshakeCB,
                                 public ManagedConnection {
   public:
     AcceptorHandshakeHelper(
-        coral::AsyncSSLSocket::UniquePtr sock,
+        folly::AsyncSSLSocket::UniquePtr sock,
         Acceptor* acceptor,
-        const coral::SocketAddress& clientAddr,
+        const folly::SocketAddress& clientAddr,
         std::chrono::steady_clock::time_point acceptTime,
         TransportInfo tinfo) :
       socket_(std::move(sock)), acceptor_(acceptor),
@@ -54,13 +54,13 @@ class AcceptorHandshakeHelper : public coral::AsyncSSLSocket::HandshakeCB,
 
   protected:
     // AsyncSSLSocket::HandshakeCallback API
-    void handshakeSuc(coral::AsyncSSLSocket* sock) noexcept override;
-    void handshakeErr(coral::AsyncSSLSocket* sock,
-                      const coral::AsyncSocketException& ex) noexcept override;
+    void handshakeSuc(folly::AsyncSSLSocket* sock) noexcept override;
+    void handshakeErr(folly::AsyncSSLSocket* sock,
+                      const folly::AsyncSocketException& ex) noexcept override;
 
-    coral::AsyncSSLSocket::UniquePtr socket_;
+    folly::AsyncSSLSocket::UniquePtr socket_;
     Acceptor* acceptor_;
-    coral::SocketAddress clientAddr_;
+    folly::SocketAddress clientAddr_;
     std::chrono::steady_clock::time_point acceptTime_;
     TransportInfo tinfo_;
     SSLErrorEnum sslError_{SSLErrorEnum::NO_ERROR};

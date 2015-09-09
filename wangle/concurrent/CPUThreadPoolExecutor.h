@@ -44,27 +44,27 @@ CPUThreadPoolExecutor(
 
   ~CPUThreadPoolExecutor();
 
-  void add(coral::Func func) override;
+  void add(folly::Func func) override;
   void add(
-      coral::Func func,
+      folly::Func func,
       std::chrono::milliseconds expiration,
-      coral::Func expireCallback = nullptr) override;
+      folly::Func expireCallback = nullptr) override;
 
-  void addWithPriority(coral::Func func, int8_t priority) override;
+  void addWithPriority(folly::Func func, int8_t priority) override;
   void add(
-      coral::Func func,
+      folly::Func func,
       int8_t priority,
       std::chrono::milliseconds expiration,
-      coral::Func expireCallback = nullptr);
+      folly::Func expireCallback = nullptr);
 
   uint8_t getNumPriorities() const override;
 
   struct CPUTask : public ThreadPoolExecutor::Task {
     // Must be noexcept move constructible so it can be used in MPMCQueue
     explicit CPUTask(
-        coral::Func&& f,
+        folly::Func&& f,
         std::chrono::milliseconds expiration,
-        coral::Func&& expireCallback)
+        folly::Func&& expireCallback)
       : Task(std::move(f), expiration, std::move(expireCallback)),
         poison(false) {}
     CPUTask()

@@ -14,7 +14,7 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
-#include <coral/Memory.h>
+#include <folly/Memory.h>
 
 namespace wangle {
 
@@ -42,7 +42,7 @@ struct Observer {
   static std::unique_ptr<Observer> create(
     N&& onNextFn, E&& onErrorFn, C&& onCompletedFn)
   {
-    return coral::make_unique<FunctionObserver<T>>(
+    return folly::make_unique<FunctionObserver<T>>(
       std::forward<N>(onNextFn),
       std::forward<E>(onErrorFn),
       std::forward<C>(onCompletedFn));
@@ -52,7 +52,7 @@ struct Observer {
   /// onCompleted will just be a no-op.
   template <class N, class E>
   static std::unique_ptr<Observer> create(N&& onNextFn, E&& onErrorFn) {
-    return coral::make_unique<FunctionObserver<T>>(
+    return folly::make_unique<FunctionObserver<T>>(
       std::forward<N>(onNextFn),
       std::forward<E>(onErrorFn),
       nullptr);
@@ -62,7 +62,7 @@ struct Observer {
   /// onError and onCompleted will just be no-ops.
   template <class N>
   static std::unique_ptr<Observer> create(N&& onNextFn) {
-    return coral::make_unique<FunctionObserver<T>>(
+    return folly::make_unique<FunctionObserver<T>>(
       std::forward<N>(onNextFn),
       nullptr,
       nullptr);

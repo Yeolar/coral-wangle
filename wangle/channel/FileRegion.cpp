@@ -15,7 +15,7 @@
  */
 #include <wangle/channel/FileRegion.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 namespace {
@@ -46,7 +46,6 @@ void FileRegion::FileWriteRequest::destroy() {
 }
 
 bool FileRegion::FileWriteRequest::performWrite() {
-#ifdef __linux__
   if (!started_) {
     start();
     return true;
@@ -66,9 +65,6 @@ bool FileRegion::FileWriteRequest::performWrite() {
   bytesInPipe_ -= spliced;
   bytesWritten(spliced);
   return true;
-#else
-  throw std::runtime_error("unimplemented");
-#endif
 }
 
 void FileRegion::FileWriteRequest::consume() {
@@ -139,7 +135,7 @@ void FileRegion::FileWriteRequest::start() {
     socket_->getEventBase()->runInEventBaseThreadAndWait([&]{
       startConsuming(socket_->getEventBase(), &queue_);
     });
-    readHandler_ = coral::make_unique<FileReadHandler>(
+    readHandler_ = folly::make_unique<FileReadHandler>(
         this, pipeFds[1], count_);
 #endif
   });
@@ -184,7 +180,6 @@ FileRegion::FileWriteRequest::FileReadHandler::~FileReadHandler() {
 
 void FileRegion::FileWriteRequest::FileReadHandler::handlerReady(
     uint16_t events) noexcept {
-#ifdef __linux__
   CHECK(events & EventHandler::WRITE);
   if (bytesToRead_ == 0) {
     unregisterHandler();
@@ -217,9 +212,6 @@ void FileRegion::FileWriteRequest::FileReadHandler::handlerReady(
       return;
     }
   }
-#else
-  throw std::runtime_error("unimplemented");
-#endif
 }
 
 } // wangle

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 #include <wangle/channel/FileRegion.h>
-#include <coral/io/async/test/AsyncSocketTest.h>
+#include <folly/io/async/test/AsyncSocketTest.h>
 #include <gtest/gtest.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 using namespace testing;
 

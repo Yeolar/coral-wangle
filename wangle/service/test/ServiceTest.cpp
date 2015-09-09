@@ -21,7 +21,7 @@
 namespace wangle {
 
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 
 typedef Pipeline<IOBufQueue&, std::string> ServicePipeline;
 
@@ -44,7 +44,7 @@ class EchoService : public Service<std::string, std::string> {
 class EchoIntService : public Service<std::string, int> {
  public:
   Future<int> operator()(std::string req) override {
-    return coral::to<int>(req);
+    return folly::to<int>(req);
   }
 };
 
@@ -53,9 +53,9 @@ class ServerPipelineFactory
     : public PipelineFactory<ServicePipeline> {
  public:
 
-  std::unique_ptr<ServicePipeline, coral::DelayedDestruction::Destructor>
+  std::unique_ptr<ServicePipeline, folly::DelayedDestruction::Destructor>
   newPipeline(std::shared_ptr<AsyncSocket> socket) override {
-    std::unique_ptr<ServicePipeline, coral::DelayedDestruction::Destructor> pipeline(
+    std::unique_ptr<ServicePipeline, folly::DelayedDestruction::Destructor> pipeline(
       new ServicePipeline());
     pipeline->addBack(AsyncSocketHandler(socket));
     pipeline->addBack(SimpleDecode());
@@ -73,9 +73,9 @@ template <typename Req, typename Resp>
 class ClientPipelineFactory : public PipelineFactory<ServicePipeline> {
  public:
 
-  std::unique_ptr<ServicePipeline, coral::DelayedDestruction::Destructor>
+  std::unique_ptr<ServicePipeline, folly::DelayedDestruction::Destructor>
   newPipeline(std::shared_ptr<AsyncSocket> socket) override {
-    std::unique_ptr<ServicePipeline, coral::DelayedDestruction::Destructor> pipeline(
+    std::unique_ptr<ServicePipeline, folly::DelayedDestruction::Destructor> pipeline(
       new ServicePipeline());
     pipeline->addBack(AsyncSocketHandler(socket));
     pipeline->addBack(SimpleDecode());
@@ -155,8 +155,8 @@ class IntToStringFilter
       ServiceFilter<int, int, std::string, std::string>(service) {}
 
   Future<int> operator()(int req) override {
-    return (*service_)(coral::to<std::string>(req)).then([](std::string resp) {
-      return coral::to<int>(resp);
+    return (*service_)(folly::to<std::string>(req)).then([](std::string resp) {
+      return folly::to<int>(resp);
     });
   }
 };
@@ -183,8 +183,8 @@ class ChangeTypeFilter
       ServiceFilter<int, std::string, std::string, int>(service) {}
 
   Future<std::string> operator()(int req) override {
-    return (*service_)(coral::to<std::string>(req)).then([](int resp) {
-      return coral::to<std::string>(resp);
+    return (*service_)(folly::to<std::string>(req)).then([](int resp) {
+      return folly::to<std::string>(resp);
     });
   }
 };
@@ -227,7 +227,7 @@ TEST(Wangle, ServiceFactoryFilter) {
     std::make_shared<ClientPipelineFactory<std::string, std::string>>());
   // It doesn't matter if connect succeds or not, but it needs to be called
   // to create a pipeline
-  client->connect(coral::SocketAddress("::1", 8090));
+  client->connect(folly::SocketAddress("::1", 8090));
 
   auto service = (*countingFactory)(client).value();
 

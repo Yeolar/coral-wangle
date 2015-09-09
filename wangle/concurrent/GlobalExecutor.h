@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include <coral/Executor.h>
+#include <folly/Executor.h>
 #include <wangle/concurrent/IOExecutor.h>
 
 namespace wangle {
@@ -20,11 +20,11 @@ namespace wangle {
 // Retrieve the global Executor. If there is none, a default InlineExecutor
 // will be constructed and returned. This is named CPUExecutor to distinguish
 // it from IOExecutor below and to hint that it's intended for CPU-bound tasks.
-std::shared_ptr<coral::Executor> getCPUExecutor();
+std::shared_ptr<folly::Executor> getCPUExecutor();
 
 // Set an Executor to be the global Executor which will be returned by
 // subsequent calls to getCPUExecutor(). Takes a non-owning (weak) reference.
-void setCPUExecutor(std::shared_ptr<coral::Executor> executor);
+void setCPUExecutor(std::shared_ptr<folly::Executor> executor);
 
 // Retrieve the global IOExecutor. If there is none, a default
 // IOThreadPoolExecutor will be constructed and returned.
@@ -34,7 +34,7 @@ void setCPUExecutor(std::shared_ptr<coral::Executor> executor);
 std::shared_ptr<IOExecutor> getIOExecutor();
 
 // Retrieve an event base from the global IOExecutor
-coral::EventBase* getEventBase();
+folly::EventBase* getEventBase();
 
 // Set an IOExecutor to be the global IOExecutor which will be returned by
 // subsequent calls to getIOExecutor(). Takes a non-owning (weak) reference.

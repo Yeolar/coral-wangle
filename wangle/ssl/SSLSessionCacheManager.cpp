@@ -13,16 +13,16 @@
 #include <wangle/ssl/SSLStats.h>
 #include <wangle/ssl/SSLUtil.h>
 
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 
 #ifndef NO_LIB_GFLAGS
 #include <gflags/gflags.h>
 #endif
 
-using coral::SSLContext;
-using coral::EventBase;
-using coral::AsyncSSLSocket;
-using coral::DelayedDestruction;
+using folly::SSLContext;
+using folly::EventBase;
+using folly::AsyncSSLSocket;
+using folly::DelayedDestruction;
 using std::string;
 using std::shared_ptr;
 
@@ -73,7 +73,7 @@ SSLSessionCacheManager::SSLSessionCacheManager(
   uint32_t maxCacheSize,
   uint32_t cacheCullSize,
   SSLContext* ctx,
-  const coral::SocketAddress& sockaddr,
+  const folly::SocketAddress& sockaddr,
   const string& context,
   EventBase* eventBase,
   SSLStats* stats,

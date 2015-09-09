@@ -1,7 +1,7 @@
 // Copyright 2004-present Facebook.  All rights reserved.
 #pragma once
 
-#include <coral/ExceptionWrapper.h>
+#include <folly/ExceptionWrapper.h>
 
 namespace wangle {
 
@@ -14,7 +14,7 @@ class Subscriber {
   virtual ~Subscriber() {}
 
   virtual void onNext(const T&) = 0;
-  virtual void onError(coral::exception_wrapper ex) = 0;
+  virtual void onError(folly::exception_wrapper ex) = 0;
   virtual void onCompleted() = 0;
 };
 

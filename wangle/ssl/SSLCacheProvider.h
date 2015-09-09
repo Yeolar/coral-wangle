@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
 
 namespace wangle {
 
@@ -28,9 +28,9 @@ public:
     std::string sessionId;
     SSL_SESSION* session;
     SSLSessionCacheManager* manager;
-    coral::AsyncSSLSocket* sslSocket;
+    folly::AsyncSSLSocket* sslSocket;
     std::unique_ptr<
-      coral::DelayedDestruction::DestructorGuard> guard;
+      folly::DelayedDestruction::DestructorGuard> guard;
   } CacheContext;
 
   virtual ~SSLCacheProvider() = default;

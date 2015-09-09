@@ -16,11 +16,11 @@
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 using namespace std::chrono;
 
-static coral::Func burnMs(uint64_t ms) {
+static folly::Func burnMs(uint64_t ms) {
   return [ms]() { std::this_thread::sleep_for(milliseconds(ms)); };
 }
 
@@ -147,7 +147,7 @@ TEST(ThreadPoolExecutorTest, IOResizeUnderLoad) {
 
 template <class TPE>
 static void poolStats() {
-  coral::Baton<> startBaton, endBaton;
+  folly::Baton<> startBaton, endBaton;
   TPE tpe(1);
   auto stats = tpe.getPoolStats();
   EXPECT_EQ(1, stats.threadCount);
@@ -265,7 +265,7 @@ static void futureExecutor() {
       EXPECT_THROW(t.value(), std::runtime_error);
     });
   // Test doing actual async work
-  coral::Baton<> baton;
+  folly::Baton<> baton;
   fe.addFuture([&] () {
     auto p = std::make_shared<Promise<int>>();
     std::thread t([p](){

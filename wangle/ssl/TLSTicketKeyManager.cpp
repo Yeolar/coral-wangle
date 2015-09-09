@@ -12,11 +12,11 @@
 #include <wangle/ssl/SSLStats.h>
 #include <wangle/ssl/SSLUtil.h>
 
-#include <coral/String.h>
+#include <folly/String.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
-#include <coral/io/async/AsyncTimeout.h>
+#include <folly/io/async/AsyncTimeout.h>
 
 #ifdef SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB
 using std::string;
@@ -34,7 +34,7 @@ namespace wangle {
 // TLSTicketKeyManager Implementation
 int32_t TLSTicketKeyManager::sExDataIndex_ = -1;
 
-TLSTicketKeyManager::TLSTicketKeyManager(coral::SSLContext* ctx, SSLStats* stats)
+TLSTicketKeyManager::TLSTicketKeyManager(folly::SSLContext* ctx, SSLStats* stats)
   : ctx_(ctx),
     randState_(0),
     stats_(stats) {
@@ -247,7 +247,7 @@ TLSTicketKeyManager::insertSeed(const string& seedInput,
   TLSTicketSeed* seed = nullptr;
   string seedOutput;
 
-  if (!coral::unhexlify<string, string>(seedInput, seedOutput)) {
+  if (!folly::unhexlify<string, string>(seedInput, seedOutput)) {
     LOG(WARNING) << "Failed to decode seed type=" << (uint32_t)type <<
       " seed=" << seedInput;
     return seed;

@@ -1,7 +1,7 @@
 // Copyright 2004-present Facebook.  All rights reserved.
 #pragma once
 
-#include <coral/futures/SharedPromise.h>
+#include <folly/futures/SharedPromise.h>
 #include <wangle/bootstrap/ClientBootstrap.h>
 #include <wangle/channel/broadcast/BroadcastHandler.h>
 
@@ -15,7 +15,7 @@ class ServerPool {
    * Get a server for establishing upstream connection when a broadcast
    * is not available locally.
    */
-  virtual coral::SocketAddress getServer() noexcept = 0;
+  virtual folly::SocketAddress getServer() noexcept = 0;
 };
 
 /**
@@ -46,7 +46,7 @@ class BroadcastPool {
       }
     }
 
-    coral::Future<BroadcastHandler<T>*> getHandler();
+    folly::Future<BroadcastHandler<T>*> getHandler();
 
     // PipelineManager implementation
     void deletePipeline(PipelineBase* pipeline) override {
@@ -61,7 +61,7 @@ class BroadcastPool {
     ClientBootstrap<DefaultPipeline> client_;
 
     bool connectStarted_{false};
-    coral::SharedPromise<BroadcastHandler<T>*> sharedPromise_;
+    folly::SharedPromise<BroadcastHandler<T>*> sharedPromise_;
   };
 
   BroadcastPool(std::shared_ptr<ServerPool> serverPool,
@@ -79,7 +79,7 @@ class BroadcastPool {
    * connection is created and stored along with a new broadcast pipeline
    * for this routingData, and its BroadcastHandler is returned.
    */
-  virtual coral::Future<BroadcastHandler<T>*> getHandler(const R& routingData);
+  virtual folly::Future<BroadcastHandler<T>*> getHandler(const R& routingData);
 
   /**
    * Checks if a broadcast is available locally for the given routingData.
@@ -89,7 +89,7 @@ class BroadcastPool {
   }
 
  private:
-  coral::SocketAddress getServer() {
+  folly::SocketAddress getServer() {
     return serverPool_->getServer();
   }
 

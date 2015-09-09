@@ -15,7 +15,7 @@
 #include <wangle/codec/LineBasedFrameDecoder.h>
 #include <wangle/codec/StringCodec.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 DEFINE_int32(port, 23, "test telnet server port");

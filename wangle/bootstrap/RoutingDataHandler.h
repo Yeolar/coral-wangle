@@ -9,10 +9,10 @@ template <typename R>
 class RoutingDataHandler : public wangle::BytesToBytesHandler {
  public:
   struct RoutingData {
-    RoutingData() : bufQueue(coral::IOBufQueue::cacheChainLength()) {}
+    RoutingData() : bufQueue(folly::IOBufQueue::cacheChainLength()) {}
 
     R routingData;
-    coral::IOBufQueue bufQueue;
+    folly::IOBufQueue bufQueue;
   };
 
   class Callback {
@@ -26,9 +26,9 @@ class RoutingDataHandler : public wangle::BytesToBytesHandler {
   virtual ~RoutingDataHandler() {}
 
   // BytesToBytesHandler implementation
-  void read(Context* ctx, coral::IOBufQueue& q) override;
+  void read(Context* ctx, folly::IOBufQueue& q) override;
   void readEOF(Context* ctx) override;
-  void readException(Context* ctx, coral::exception_wrapper ex) override;
+  void readException(Context* ctx, folly::exception_wrapper ex) override;
 
   /**
    * Parse the routing data from bufQueue into routingData. This
@@ -41,7 +41,7 @@ class RoutingDataHandler : public wangle::BytesToBytesHandler {
    * @return bool - True on success, false if bufQueue doesn't have
    *                sufficient bytes for parsing
    */
-  virtual bool parseRoutingData(coral::IOBufQueue& bufQueue,
+  virtual bool parseRoutingData(folly::IOBufQueue& bufQueue,
                                 RoutingData& routingData) = 0;
 
  protected:

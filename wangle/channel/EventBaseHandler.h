@@ -14,10 +14,10 @@ namespace wangle {
 
 class EventBaseHandler : public OutboundBytesToBytesHandler {
  public:
-  coral::Future<coral::Unit> write(
+  folly::Future<folly::Unit> write(
       Context* ctx,
-      std::unique_ptr<coral::IOBuf> buf) override {
-    coral::Future<coral::Unit> retval;
+      std::unique_ptr<folly::IOBuf> buf) override {
+    folly::Future<folly::Unit> retval;
     DCHECK(ctx->getTransport());
     DCHECK(ctx->getTransport()->getEventBase());
     ctx->getTransport()->getEventBase()->runImmediatelyOrRunInEventBaseThreadAndWait([&](){
@@ -26,10 +26,10 @@ class EventBaseHandler : public OutboundBytesToBytesHandler {
     return retval;
   }
 
-  coral::Future<coral::Unit> close(Context* ctx) override {
+  folly::Future<folly::Unit> close(Context* ctx) override {
     DCHECK(ctx->getTransport());
     DCHECK(ctx->getTransport()->getEventBase());
-    coral::Future<coral::Unit> retval;
+    folly::Future<folly::Unit> retval;
     ctx->getTransport()->getEventBase()->runImmediatelyOrRunInEventBaseThreadAndWait([&](){
         retval = ctx->fireClose();
     });

@@ -12,13 +12,13 @@
 #include <wangle/concurrent/GlobalExecutor.h>
 #include <wangle/concurrent/IOExecutor.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 TEST(GlobalExecutorTest, GlobalCPUExecutor) {
-  class DummyExecutor : public coral::Executor {
+  class DummyExecutor : public folly::Executor {
    public:
-    void add(coral::Func f) override {
+    void add(folly::Func f) override {
       f();
       count++;
     }
@@ -52,10 +52,10 @@ TEST(GlobalExecutorTest, GlobalCPUExecutor) {
 TEST(GlobalExecutorTest, GlobalIOExecutor) {
   class DummyExecutor : public IOExecutor {
    public:
-    void add(coral::Func f) override {
+    void add(folly::Func f) override {
       count++;
     }
-    coral::EventBase* getEventBase() override {
+    folly::EventBase* getEventBase() override {
       return nullptr;
     }
     int count{0};

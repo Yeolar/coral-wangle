@@ -11,9 +11,9 @@
 #pragma once
 
 #include <atomic>
-#include <coral/Executor.h>
+#include <folly/Executor.h>
 
-namespace coral {
+namespace folly {
 class EventBase;
 }
 
@@ -32,10 +32,10 @@ namespace wangle {
 //
 // If getIOExecutor is called and none has been set, a default global
 // IOThreadPoolExecutor will be created and returned.
-class IOExecutor : public virtual coral::Executor {
+class IOExecutor : public virtual folly::Executor {
  public:
   virtual ~IOExecutor() = default;
-  virtual coral::EventBase* getEventBase() = 0;
+  virtual folly::EventBase* getEventBase() = 0;
 };
 
 } // namespace wangle

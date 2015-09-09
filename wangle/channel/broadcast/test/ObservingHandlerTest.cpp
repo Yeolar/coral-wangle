@@ -3,7 +3,7 @@
 #include <wangle/codec/MessageToByteEncoder.h>
 
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 using namespace testing;
 
 class ObservingHandlerTest : public Test {
@@ -11,7 +11,7 @@ class ObservingHandlerTest : public Test {
   class MockIntToByteEncoder : public MessageToByteEncoder<int> {
    public:
     std::unique_ptr<IOBuf> encode(int& data) override {
-      return IOBuf::copyBuffer(coral::to<std::string>(data));
+      return IOBuf::copyBuffer(folly::to<std::string>(data));
     }
   };
 

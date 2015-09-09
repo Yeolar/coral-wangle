@@ -11,14 +11,14 @@
 #include <wangle/acceptor/ConnectionManager.h>
 
 #include <glog/logging.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/io/async/EventBase.h>
 
-using coral::HHWheelTimer;
+using folly::HHWheelTimer;
 using std::chrono::milliseconds;
 
 namespace wangle {
 
-ConnectionManager::ConnectionManager(coral::EventBase* eventBase,
+ConnectionManager::ConnectionManager(folly::EventBase* eventBase,
     milliseconds timeout, Callback* callback)
   : connTimeouts_(new HHWheelTimer(eventBase)),
     callback_(callback),
@@ -66,7 +66,7 @@ ConnectionManager::scheduleTimeout(ManagedConnection* const connection,
 }
 
 void ConnectionManager::scheduleTimeout(
-  coral::HHWheelTimer::Callback* callback,
+  folly::HHWheelTimer::Callback* callback,
   std::chrono::milliseconds timeout) {
   connTimeouts_->scheduleTimeout(callback, timeout);
 }

@@ -18,17 +18,17 @@
 #include <boost/optional.hpp>
 #include <chrono>
 #include <fcntl.h>
-#include <coral/Random.h>
-#include <coral/SocketAddress.h>
-#include <coral/String.h>
-#include <coral/io/async/SSLContext.h>
+#include <folly/Random.h>
+#include <folly/SocketAddress.h>
+#include <folly/String.h>
+#include <folly/io/async/SSLContext.h>
 #include <list>
 #include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <coral/io/async/AsyncSocket.h>
-#include <coral/io/async/SSLContext.h>
-#include <coral/SocketAddress.h>
+#include <folly/io/async/AsyncSocket.h>
+#include <folly/io/async/SSLContext.h>
+#include <folly/SocketAddress.h>
 
 namespace wangle {
 
@@ -43,7 +43,7 @@ struct ServerSocketConfig {
   ServerSocketConfig() {
     // generate a single random current seed
     uint8_t seed[32];
-    coral::Random::secureRandom(seed, sizeof(seed));
+    folly::Random::secureRandom(seed, sizeof(seed));
     initialTicketSeeds.currentSeeds.push_back(
       SSLUtil::hexlify(std::string((char *)seed, sizeof(seed))));
   }
@@ -54,14 +54,14 @@ struct ServerSocketConfig {
    * Set/get the socket options to apply on all downstream connections.
    */
   void setSocketOptions(
-    const coral::AsyncSocket::OptionMap& opts) {
+    const folly::AsyncSocket::OptionMap& opts) {
     socketOptions_ = filterIPSocketOptions(opts, bindAddress.getFamily());
   }
-  coral::AsyncSocket::OptionMap&
+  folly::AsyncSocket::OptionMap&
   getSocketOptions() {
     return socketOptions_;
   }
-  const coral::AsyncSocket::OptionMap&
+  const folly::AsyncSocket::OptionMap&
   getSocketOptions() const {
     return socketOptions_;
   }
@@ -93,7 +93,7 @@ struct ServerSocketConfig {
   /**
    * The address to bind to.
    */
-  coral::SocketAddress bindAddress;
+  folly::SocketAddress bindAddress;
 
   /**
    * Options for controlling the SSL cache.
@@ -122,7 +122,7 @@ struct ServerSocketConfig {
   uint32_t maxConcurrentSSLHandshakes{30720};
 
  private:
-  coral::AsyncSocket::OptionMap socketOptions_;
+  folly::AsyncSocket::OptionMap socketOptions_;
 };
 
 } // namespace wangle

@@ -9,9 +9,9 @@
  */
 #pragma once
 
-#include <coral/String.h>
+#include <folly/String.h>
 #include <mutex>
-#include <coral/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
 
 namespace wangle {
 
@@ -58,14 +58,14 @@ class SSLUtil {
 
   static inline std::string hexlify(const std::string& binary) {
     std::string hex;
-    coral::hexlify<std::string, std::string>(binary, hex);
+    folly::hexlify<std::string, std::string>(binary, hex);
 
     return hex;
   }
 
   static inline const std::string& hexlify(const std::string& binary,
                                            std::string& hex) {
-    coral::hexlify<std::string, std::string>(binary, hex);
+    folly::hexlify<std::string, std::string>(binary, hex);
 
     return hex;
   }
@@ -74,7 +74,7 @@ class SSLUtil {
    * Return the SSL resume type for the given socket.
    */
   static inline SSLResumeEnum getResumeState(
-    coral::AsyncSSLSocket* sslSocket) {
+    folly::AsyncSSLSocket* sslSocket) {
     return sslSocket->getSSLSessionReused() ?
       (sslSocket->sessionIDResumed() ?
         SSLResumeEnum::RESUME_SESSION_ID :

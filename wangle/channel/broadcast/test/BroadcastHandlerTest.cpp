@@ -2,14 +2,14 @@
 #include <wangle/channel/broadcast/test/Mocks.h>
 
 using namespace wangle;
-using namespace coral;
+using namespace folly;
 using namespace testing;
 
 class BroadcastHandlerTest : public Test {
  public:
   class MockBroadcastHandler : public BroadcastHandler<std::string> {
    public:
-    MOCK_METHOD1(close, coral::Future<coral::Unit>(Context*));
+    MOCK_METHOD1(close, folly::Future<folly::Unit>(Context*));
   };
 
   void SetUp() override {

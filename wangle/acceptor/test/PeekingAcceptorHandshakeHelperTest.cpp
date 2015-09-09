@@ -4,10 +4,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <coral/io/async/test/MockAsyncSSLSocket.h>
+#include <folly/io/async/test/MockAsyncSSLSocket.h>
 
-using namespace coral;
-using namespace coral::test;
+using namespace folly;
+using namespace folly::test;
 using namespace wangle;
 using namespace testing;
 

@@ -26,7 +26,7 @@
 
 #include <wangle/example/rpc/SerializeHandler.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 using thrift::test::Bonk;
 
@@ -37,10 +37,10 @@ typedef wangle::Pipeline<IOBufQueue&, Bonk> SerializePipeline;
 
 class RpcPipelineFactory : public PipelineFactory<SerializePipeline> {
  public:
-  std::unique_ptr<SerializePipeline, coral::DelayedDestruction::Destructor>
+  std::unique_ptr<SerializePipeline, folly::DelayedDestruction::Destructor>
   newPipeline(std::shared_ptr<AsyncSocket> sock) {
 
-    std::unique_ptr<SerializePipeline, coral::DelayedDestruction::Destructor>
+    std::unique_ptr<SerializePipeline, folly::DelayedDestruction::Destructor>
       pipeline(new SerializePipeline);
     pipeline->addBack(AsyncSocketHandler(sock));
     // ensure we can write from any thread
@@ -70,7 +70,7 @@ class BonkMultiplexClientDispatcher
   Future<Bonk> operator()(Bonk arg) override {
     auto& p = requests_[arg.type];
     auto f = p.getFuture();
-    p.setInterruptHandler([arg,this](const coral::exception_wrapper& e) {
+    p.setInterruptHandler([arg,this](const folly::exception_wrapper& e) {
       this->requests_.erase(arg.type);
     });
     this->pipeline_->write(arg);

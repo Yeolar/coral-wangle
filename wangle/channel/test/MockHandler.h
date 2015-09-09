@@ -25,7 +25,7 @@ class MockHandler : public Handler<Rin, Rout, Win, Wout> {
 
   MOCK_METHOD2_T(read_, void(Context*, Rin&));
   MOCK_METHOD1_T(readEOF, void(Context*));
-  MOCK_METHOD2_T(readException, void(Context*, coral::exception_wrapper));
+  MOCK_METHOD2_T(readException, void(Context*, folly::exception_wrapper));
 
   MOCK_METHOD2_T(write_, void(Context*, Win&));
   MOCK_METHOD1_T(close_, void(Context*));
@@ -39,14 +39,14 @@ class MockHandler : public Handler<Rin, Rout, Win, Wout> {
     read_(ctx, msg);
   }
 
-  coral::Future<coral::Unit> write(Context* ctx, Win msg) override {
-    return coral::makeFutureWith([&](){
+  folly::Future<folly::Unit> write(Context* ctx, Win msg) override {
+    return folly::makeFutureWith([&](){
       write_(ctx, msg);
     });
   }
 
-  coral::Future<coral::Unit> close(Context* ctx) override {
-    return coral::makeFutureWith([&](){
+  folly::Future<folly::Unit> close(Context* ctx) override {
+    return folly::makeFutureWith([&](){
       close_(ctx);
     });
   }

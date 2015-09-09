@@ -15,22 +15,22 @@
 
 #include <boost/cast.hpp>
 #include <fcntl.h>
-#include <coral/ScopeGuard.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/ScopeGuard.h>
+#include <folly/io/async/EventBase.h>
 #include <fstream>
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <coral/io/async/AsyncSSLSocket.h>
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSSLSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 #include <gflags/gflags.h>
 #include <unistd.h>
 
-using coral::AsyncSocket;
-using coral::AsyncSSLSocket;
-using coral::AsyncSocketException;
-using coral::AsyncServerSocket;
-using coral::EventBase;
-using coral::SocketAddress;
+using folly::AsyncSocket;
+using folly::AsyncSSLSocket;
+using folly::AsyncSocketException;
+using folly::AsyncServerSocket;
+using folly::EventBase;
+using folly::SocketAddress;
 using std::chrono::microseconds;
 using std::chrono::milliseconds;
 using std::filebuf;
@@ -63,7 +63,7 @@ Acceptor::init(AsyncServerSocket* serverSocket,
 
   if (accConfig_.isSSL()) {
     if (!sslCtxManager_) {
-      sslCtxManager_ = coral::make_unique<SSLContextManager>(
+      sslCtxManager_ = folly::make_unique<SSLContextManager>(
         eventBase,
         "vip_" + getName(),
         accConfig_.strictSSL, nullptr);

@@ -9,7 +9,7 @@
  */
 #include <wangle/ssl/PasswordInFile.h>
 
-#include <coral/FileUtil.h>
+#include <folly/FileUtil.h>
 
 using namespace std;
 
@@ -17,7 +17,7 @@ namespace wangle {
 
 PasswordInFile::PasswordInFile(const string& file)
     : fileName_(file) {
-  coral::readFile(file.c_str(), password_);
+  folly::readFile(file.c_str(), password_);
   auto p = password_.find('\0');
   if (p != std::string::npos) {
     password_.erase(p);

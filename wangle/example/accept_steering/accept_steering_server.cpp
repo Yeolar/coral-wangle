@@ -15,7 +15,7 @@
 #include <wangle/bootstrap/ServerBootstrap.h>
 #include <wangle/channel/AsyncSocketHandler.h>
 
-using namespace coral;
+using namespace folly;
 using namespace wangle;
 
 DEFINE_int32(port, 23, "test server port");
@@ -30,7 +30,7 @@ class NaiveRoutingDataHandler : public RoutingDataHandler<char> {
   NaiveRoutingDataHandler(uint64_t connId, Callback* cob)
       : RoutingDataHandler<char>(connId, cob) {}
 
-  bool parseRoutingData(coral::IOBufQueue& bufQueue,
+  bool parseRoutingData(folly::IOBufQueue& bufQueue,
                         RoutingData& routingData) override {
     if (bufQueue.chainLength() == 0) {
       return false;

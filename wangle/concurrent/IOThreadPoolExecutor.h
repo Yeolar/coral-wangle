@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <coral/io/async/EventBaseManager.h>
+#include <folly/io/async/EventBaseManager.h>
 #include <wangle/concurrent/IOExecutor.h>
 #include <wangle/concurrent/ThreadPoolExecutor.h>
 
@@ -24,31 +24,31 @@ class IOThreadPoolExecutor : public ThreadPoolExecutor, public IOExecutor {
       size_t numThreads,
       std::shared_ptr<ThreadFactory> threadFactory =
           std::make_shared<NamedThreadFactory>("IOThreadPool"),
-      coral::EventBaseManager* ebm = coral::EventBaseManager::get());
+      folly::EventBaseManager* ebm = folly::EventBaseManager::get());
 
   ~IOThreadPoolExecutor();
 
-  void add(coral::Func func) override;
+  void add(folly::Func func) override;
   void add(
-      coral::Func func,
+      folly::Func func,
       std::chrono::milliseconds expiration,
-      coral::Func expireCallback = nullptr) override;
+      folly::Func expireCallback = nullptr) override;
 
-  coral::EventBase* getEventBase() override;
+  folly::EventBase* getEventBase() override;
 
-  static coral::EventBase* getEventBase(ThreadPoolExecutor::ThreadHandle*);
+  static folly::EventBase* getEventBase(ThreadPoolExecutor::ThreadHandle*);
 
-  coral::EventBaseManager* getEventBaseManager();
+  folly::EventBaseManager* getEventBaseManager();
 
  private:
-  struct CORAL_ALIGN_TO_AVOID_FALSE_SHARING IOThread : public Thread {
+  struct FOLLY_ALIGN_TO_AVOID_FALSE_SHARING IOThread : public Thread {
     IOThread(IOThreadPoolExecutor* pool)
       : Thread(pool),
         shouldRun(true),
         pendingTasks(0) {};
     std::atomic<bool> shouldRun;
     std::atomic<size_t> pendingTasks;
-    coral::EventBase* eventBase;
+    folly::EventBase* eventBase;
   };
 
   ThreadPtr makeThread() override;
@@ -58,8 +58,8 @@ class IOThreadPoolExecutor : public ThreadPoolExecutor, public IOExecutor {
   uint64_t getPendingTaskCount() override;
 
   size_t nextThread_;
-  coral::ThreadLocal<std::shared_ptr<IOThread>> thisThread_;
-  coral::EventBaseManager* eventBaseManager_;
+  folly::ThreadLocal<std::shared_ptr<IOThread>> thisThread_;
+  folly::EventBaseManager* eventBaseManager_;
 };
 
 } // namespace wangle

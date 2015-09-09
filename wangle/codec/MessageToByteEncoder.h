@@ -19,15 +19,15 @@ namespace wangle {
  * message to IOBuf. Inverse of ByteToMessageDecoder.
  */
 template <typename M>
-class MessageToByteEncoder : public OutboundHandler<M, std::unique_ptr<coral::IOBuf>> {
+class MessageToByteEncoder : public OutboundHandler<M, std::unique_ptr<folly::IOBuf>> {
  public:
-  typedef typename OutboundHandler<M, std::unique_ptr<coral::IOBuf>>::Context Context;
+  typedef typename OutboundHandler<M, std::unique_ptr<folly::IOBuf>>::Context Context;
 
-  virtual std::unique_ptr<coral::IOBuf> encode(M& msg) = 0;
+  virtual std::unique_ptr<folly::IOBuf> encode(M& msg) = 0;
 
-  coral::Future<coral::Unit> write(Context* ctx, M msg) override {
+  folly::Future<folly::Unit> write(Context* ctx, M msg) override {
     auto buf = encode(msg);
-    return buf ? ctx->fireWrite(std::move(buf)) : coral::makeFuture();
+    return buf ? ctx->fireWrite(std::move(buf)) : folly::makeFuture();
   }
 };
 

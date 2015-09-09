@@ -9,7 +9,7 @@
  */
 
 #pragma once
-#include <coral/futures/Future.h>
+#include <folly/futures/Future.h>
 
 namespace wangle {
 
@@ -30,16 +30,16 @@ class FutureExecutor : public ExecutorImpl {
    *              });
    */
   template <typename F>
-  typename std::enable_if<coral::isFuture<typename std::result_of<F()>::type>::value,
+  typename std::enable_if<folly::isFuture<typename std::result_of<F()>::type>::value,
                           typename std::result_of<F()>::type>::type
   addFuture(F func) {
     typedef typename std::result_of<F()>::type::value_type T;
-    coral::Promise<T> promise;
+    folly::Promise<T> promise;
     auto future = promise.getFuture();
-    auto movePromise = coral::makeMoveWrapper(std::move(promise));
-    auto moveFunc = coral::makeMoveWrapper(std::move(func));
+    auto movePromise = folly::makeMoveWrapper(std::move(promise));
+    auto moveFunc = folly::makeMoveWrapper(std::move(func));
     ExecutorImpl::add([movePromise, moveFunc] () mutable {
-      (*moveFunc)().then([movePromise] (coral::Try<T>&& t) mutable {
+      (*moveFunc)().then([movePromise] (folly::Try<T>&& t) mutable {
         movePromise->setTry(std::move(t));
       });
     });
@@ -55,14 +55,14 @@ class FutureExecutor : public ExecutorImpl {
    *              });
    */
   template <typename F>
-  typename std::enable_if<!coral::isFuture<typename std::result_of<F()>::type>::value,
-                          coral::Future<typename coral::Unit::Lift<typename std::result_of<F()>::type>::type>>::type
+  typename std::enable_if<!folly::isFuture<typename std::result_of<F()>::type>::value,
+                          folly::Future<typename folly::Unit::Lift<typename std::result_of<F()>::type>::type>>::type
   addFuture(F func) {
-    using T = typename coral::Unit::Lift<typename std::result_of<F()>::type>::type;
-    coral::Promise<T> promise;
+    using T = typename folly::Unit::Lift<typename std::result_of<F()>::type>::type;
+    folly::Promise<T> promise;
     auto future = promise.getFuture();
-    auto movePromise = coral::makeMoveWrapper(std::move(promise));
-    auto moveFunc = coral::makeMoveWrapper(std::move(func));
+    auto movePromise = folly::makeMoveWrapper(std::move(promise));
+    auto moveFunc = folly::makeMoveWrapper(std::move(func));
     ExecutorImpl::add([movePromise, moveFunc] () mutable {
       movePromise->setWith(std::move(*moveFunc));
     });

@@ -15,8 +15,8 @@
  */
 #pragma once
 
-#include <coral/ThreadLocal.h>
-#include <coral/io/async/EventBase.h>
+#include <folly/ThreadLocal.h>
+#include <folly/io/async/EventBase.h>
 #include <wangle/concurrent/GlobalExecutor.h>
 
 namespace wangle {
@@ -40,7 +40,7 @@ namespace wangle {
 template <class T>
 class IOObjectCache {
  public:
-  typedef std::function<std::shared_ptr<T>(coral::EventBase*)> TFactory;
+  typedef std::function<std::shared_ptr<T>(folly::EventBase*)> TFactory;
 
   IOObjectCache() = default;
   explicit IOObjectCache(TFactory factory)
@@ -63,7 +63,7 @@ class IOObjectCache {
   }
 
  private:
-  coral::ThreadLocal<std::map<coral::EventBase*, std::shared_ptr<T>>> cache_;
+  folly::ThreadLocal<std::map<folly::EventBase*, std::shared_ptr<T>>> cache_;
   TFactory factory_;
 };
 

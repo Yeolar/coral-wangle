@@ -9,7 +9,7 @@
  */
 #pragma once
 
-#include <coral/io/async/AsyncSocket.h>
+#include <folly/io/async/AsyncSocket.h>
 
 namespace wangle {
 
@@ -17,8 +17,8 @@ namespace wangle {
  * Returns a copy of the socket options excluding options with the given
  * level.
  */
-coral::AsyncSocket::OptionMap filterIPSocketOptions(
-  const coral::AsyncSocket::OptionMap& allOptions,
+folly::AsyncSocket::OptionMap filterIPSocketOptions(
+  const folly::AsyncSocket::OptionMap& allOptions,
   const int addrFamily);
 
 } // namespace wangle

@@ -13,9 +13,9 @@ namespace wangle {
  * of subscribers.
  */
 template <typename T>
-class BroadcastHandler : public HandlerAdapter<T, std::unique_ptr<coral::IOBuf>> {
+class BroadcastHandler : public HandlerAdapter<T, std::unique_ptr<folly::IOBuf>> {
  public:
-  typedef typename HandlerAdapter<T, std::unique_ptr<coral::IOBuf>>::Context Context;
+  typedef typename HandlerAdapter<T, std::unique_ptr<folly::IOBuf>>::Context Context;
 
   virtual ~BroadcastHandler() {
     CHECK(subscribers_.empty());
@@ -24,7 +24,7 @@ class BroadcastHandler : public HandlerAdapter<T, std::unique_ptr<coral::IOBuf>>
   // BytesToBytesHandler implementation
   void read(Context* ctx, T data) override;
   void readEOF(Context* ctx) override;
-  void readException(Context* ctx, coral::exception_wrapper ex) override;
+  void readException(Context* ctx, folly::exception_wrapper ex) override;
 
   /**
    * Subscribes to the broadcast. Returns a unique subscription ID
@@ -65,7 +65,7 @@ class BroadcastPipelineFactory
     : public PipelineFactory<DefaultPipeline> {
  public:
   virtual DefaultPipeline::UniquePtr newPipeline(
-      std::shared_ptr<coral::AsyncSocket> socket) override = 0;
+      std::shared_ptr<folly::AsyncSocket> socket) override = 0;
 
   virtual BroadcastHandler<T>* getBroadcastHandler(
       DefaultPipeline* pipeline) noexcept = 0;

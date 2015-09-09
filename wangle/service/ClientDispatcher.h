@@ -42,11 +42,11 @@ class ClientDispatcherBase : public HandlerAdapter<Req, Resp>
     pipeline_->finalize();
   }
 
-  virtual coral::Future<coral::Unit> close() override {
+  virtual folly::Future<folly::Unit> close() override {
     return HandlerAdapter<Req, Resp>::close(this->getContext());
   }
 
-  virtual coral::Future<coral::Unit> close(Context* ctx) override {
+  virtual folly::Future<folly::Unit> close(Context* ctx) override {
     return HandlerAdapter<Req, Resp>::close(ctx);
   }
 
@@ -68,21 +68,21 @@ class SerialClientDispatcher
   void read(Context* ctx, Req in) override {
     DCHECK(p_);
     p_->setValue(std::move(in));
-    p_ = coral::none;
+    p_ = folly::none;
   }
 
-  virtual coral::Future<Resp> operator()(Req arg) override {
+  virtual folly::Future<Resp> operator()(Req arg) override {
     CHECK(!p_);
     DCHECK(this->pipeline_);
 
-    p_ = coral::Promise<Resp>();
+    p_ = folly::Promise<Resp>();
     auto f = p_->getFuture();
     this->pipeline_->write(std::move(arg));
     return f;
   }
 
  private:
-  coral::Optional<coral::Promise<Resp>> p_;
+  folly::Optional<folly::Promise<Resp>> p_;
 };
 
 /**
@@ -104,10 +104,10 @@ class PipelinedClientDispatcher
     p.setValue(std::move(in));
   }
 
-  virtual coral::Future<Resp> operator()(Req arg) override {
+  virtual folly::Future<Resp> operator()(Req arg) override {
     DCHECK(this->pipeline_);
 
-    coral::Promise<Resp> p;
+    folly::Promise<Resp> p;
     auto f = p.getFuture();
     p_.push_back(std::move(p));
     this->pipeline_->write(std::move(arg));
@@ -115,7 +115,7 @@ class PipelinedClientDispatcher
   }
 
  private:
-  std::deque<coral::Promise<Resp>> p_;
+  std::deque<folly::Promise<Resp>> p_;
 };
 
 /*

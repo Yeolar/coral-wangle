@@ -11,21 +11,21 @@
 #pragma once
 
 #include <wangle/channel/Handler.h>
-#include <coral/io/async/AsyncSocket.h>
-#include <coral/io/async/EventBase.h>
-#include <coral/io/async/EventBaseManager.h>
-#include <coral/io/IOBuf.h>
-#include <coral/io/IOBufQueue.h>
+#include <folly/io/async/AsyncSocket.h>
+#include <folly/io/async/EventBase.h>
+#include <folly/io/async/EventBaseManager.h>
+#include <folly/io/IOBuf.h>
+#include <folly/io/IOBufQueue.h>
 
 namespace wangle {
 
 // This handler may only be used in a single Pipeline
 class AsyncSocketHandler
   : public wangle::BytesToBytesHandler,
-    public coral::AsyncSocket::ReadCallback {
+    public folly::AsyncSocket::ReadCallback {
  public:
   explicit AsyncSocketHandler(
-      std::shared_ptr<coral::AsyncSocket> socket)
+      std::shared_ptr<folly::AsyncSocket> socket)
     : socket_(std::move(socket)) {}
 
   AsyncSocketHandler(AsyncSocketHandler&&) = default;
@@ -49,7 +49,7 @@ class AsyncSocketHandler
     }
   }
 
-  void attachEventBase(coral::EventBase* eventBase) {
+  void attachEventBase(folly::EventBase* eventBase) {
     if (eventBase && !socket_->getEventBase()) {
       socket_->attachEventBase(eventBase);
     }
@@ -78,17 +78,17 @@ class AsyncSocketHandler
     detachReadCallback();
   }
 
-  coral::Future<coral::Unit> write(
+  folly::Future<folly::Unit> write(
       Context* ctx,
-      std::unique_ptr<coral::IOBuf> buf) override {
+      std::unique_ptr<folly::IOBuf> buf) override {
     if (UNLIKELY(!buf)) {
-      return coral::makeFuture();
+      return folly::makeFuture();
     }
 
     if (!socket_->good()) {
       VLOG(5) << "socket is closed in write()";
-      return coral::makeFuture<coral::Unit>(coral::AsyncSocketException(
-          coral::AsyncSocketException::AsyncSocketExceptionType::NOT_OPEN,
+      return folly::makeFuture<folly::Unit>(folly::AsyncSocketException(
+          folly::AsyncSocketException::AsyncSocketExceptionType::NOT_OPEN,
           "socket is closed in write()"));
     }
 
@@ -98,13 +98,13 @@ class AsyncSocketHandler
     return future;
   };
 
-  coral::Future<coral::Unit> close(Context* ctx) override {
+  folly::Future<folly::Unit> close(Context* ctx) override {
     if (socket_) {
       detachReadCallback();
       socket_->closeNow();
     }
     ctx->getPipeline()->deletePipeline();
-    return coral::makeFuture();
+    return folly::makeFuture();
   }
 
   // Must override to avoid warnings about hidden overloaded virtual due to
@@ -131,21 +131,21 @@ class AsyncSocketHandler
     getContext()->fireReadEOF();
   }
 
-  void readErr(const coral::AsyncSocketException& ex)
+  void readErr(const folly::AsyncSocketException& ex)
     noexcept override {
     getContext()->fireReadException(
-        coral::make_exception_wrapper<coral::AsyncSocketException>(ex));
+        folly::make_exception_wrapper<folly::AsyncSocketException>(ex));
   }
 
  private:
-  class WriteCallback : private coral::AsyncSocket::WriteCallback {
+  class WriteCallback : private folly::AsyncSocket::WriteCallback {
     void writeSuccess() noexcept override {
       promise_.setValue();
       delete this;
     }
 
     void writeErr(size_t bytesWritten,
-                  const coral::AsyncSocketException& ex)
+                  const folly::AsyncSocketException& ex)
       noexcept override {
       promise_.setException(ex);
       delete this;
@@ -153,11 +153,11 @@ class AsyncSocketHandler
 
    private:
     friend class AsyncSocketHandler;
-    coral::Promise<coral::Unit> promise_;
+    folly::Promise<folly::Unit> promise_;
   };
 
-  coral::IOBufQueue bufQueue_{coral::IOBufQueue::cacheChainLength()};
-  std::shared_ptr<coral::AsyncSocket> socket_{nullptr};
+  folly::IOBufQueue bufQueue_{folly::IOBufQueue::cacheChainLength()};
+  std::shared_ptr<folly::AsyncSocket> socket_{nullptr};
   bool firedInactive_{false};
 };
 

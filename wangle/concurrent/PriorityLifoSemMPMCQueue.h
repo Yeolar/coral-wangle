@@ -10,8 +10,8 @@
 
 #pragma once
 #include <wangle/concurrent/BlockingQueue.h>
-#include <coral/LifoSem.h>
-#include <coral/MPMCQueue.h>
+#include <folly/LifoSem.h>
+#include <folly/MPMCQueue.h>
 
 namespace wangle {
 
@@ -31,7 +31,7 @@ class PriorityLifoSemMPMCQueue : public BlockingQueue<T> {
 
   // Add at medium priority by default
   void add(T item) override {
-    addWithPriority(std::move(item), coral::Executor::MID_PRI);
+    addWithPriority(std::move(item), folly::Executor::MID_PRI);
   }
 
   void addWithPriority(T item, int8_t priority) override {
@@ -67,8 +67,8 @@ class PriorityLifoSemMPMCQueue : public BlockingQueue<T> {
   }
 
  private:
-  coral::LifoSem sem_;
-  std::vector<coral::MPMCQueue<T>> queues_;
+  folly::LifoSem sem_;
+  std::vector<folly::MPMCQueue<T>> queues_;
 };
 
 } // namespace wangle

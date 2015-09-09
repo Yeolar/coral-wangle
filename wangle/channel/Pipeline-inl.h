@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include <coral/io/IOBufQueue.h>
+#include <folly/io/IOBufQueue.h>
 #include <glog/logging.h>
 
 namespace wangle {
 
 typedef Pipeline<void*> AcceptPipeline;
-typedef Pipeline<coral::IOBufQueue&, std::unique_ptr<coral::IOBuf>>
+typedef Pipeline<folly::IOBufQueue&, std::unique_ptr<folly::IOBuf>>
     DefaultPipeline;
 
 template <class R, class W>
@@ -167,7 +167,7 @@ inline void logWarningIfNotUnit(const std::string& warning) {
 }
 
 template <>
-inline void logWarningIfNotUnit<coral::Unit>(const std::string& /*warning*/) {
+inline void logWarningIfNotUnit<folly::Unit>(const std::string& /*warning*/) {
   // do nothing
 }
 
@@ -175,7 +175,7 @@ inline void logWarningIfNotUnit<coral::Unit>(const std::string& /*warning*/) {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
 Pipeline<R, W>::read(R msg) {
   if (!front_) {
     throw std::invalid_argument("read(): no inbound handler in Pipeline");
@@ -185,7 +185,7 @@ Pipeline<R, W>::read(R msg) {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
 Pipeline<R, W>::readEOF() {
   if (!front_) {
     throw std::invalid_argument("readEOF(): no inbound handler in Pipeline");
@@ -195,7 +195,7 @@ Pipeline<R, W>::readEOF() {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
 Pipeline<R, W>::transportActive() {
   if (front_) {
     front_->transportActive();
@@ -204,7 +204,7 @@ Pipeline<R, W>::transportActive() {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
+typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
 Pipeline<R, W>::transportInactive() {
   if (front_) {
     front_->transportInactive();
@@ -213,8 +213,8 @@ Pipeline<R, W>::transportInactive() {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value>::type
-Pipeline<R, W>::readException(coral::exception_wrapper e) {
+typename std::enable_if<!std::is_same<T, folly::Unit>::value>::type
+Pipeline<R, W>::readException(folly::exception_wrapper e) {
   if (!front_) {
     throw std::invalid_argument(
         "readException(): no inbound handler in Pipeline");
@@ -224,8 +224,8 @@ Pipeline<R, W>::readException(coral::exception_wrapper e) {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value,
-                        coral::Future<coral::Unit>>::type
+typename std::enable_if<!std::is_same<T, folly::Unit>::value,
+                        folly::Future<folly::Unit>>::type
 Pipeline<R, W>::write(W msg) {
   if (!back_) {
     throw std::invalid_argument("write(): no outbound handler in Pipeline");
@@ -235,8 +235,8 @@ Pipeline<R, W>::write(W msg) {
 
 template <class R, class W>
 template <class T>
-typename std::enable_if<!std::is_same<T, coral::Unit>::value,
-                        coral::Future<coral::Unit>>::type
+typename std::enable_if<!std::is_same<T, folly::Unit>::value,
+                        folly::Future<folly::Unit>>::type
 Pipeline<R, W>::close() {
   if (!back_) {
     throw std::invalid_argument("close(): no outbound handler in Pipeline");

@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include <coral/futures/Future.h>
+#include <folly/futures/Future.h>
 #include <wangle/channel/Pipeline.h>
-#include <coral/io/IOBuf.h>
-#include <coral/io/IOBufQueue.h>
+#include <folly/io/IOBuf.h>
+#include <folly/io/IOBufQueue.h>
 
 namespace wangle {
 
@@ -55,7 +55,7 @@ class Handler : public HandlerBase<HandlerContext<Rout, Wout>> {
   virtual void readEOF(Context* ctx) {
     ctx->fireReadEOF();
   }
-  virtual void readException(Context* ctx, coral::exception_wrapper e) {
+  virtual void readException(Context* ctx, folly::exception_wrapper e) {
     ctx->fireReadException(std::move(e));
   }
   virtual void transportActive(Context* ctx) {
@@ -65,8 +65,8 @@ class Handler : public HandlerBase<HandlerContext<Rout, Wout>> {
     ctx->fireTransportInactive();
   }
 
-  virtual coral::Future<coral::Unit> write(Context* ctx, Win msg) = 0;
-  virtual coral::Future<coral::Unit> close(Context* ctx) {
+  virtual folly::Future<folly::Unit> write(Context* ctx, Win msg) = 0;
+  virtual folly::Future<folly::Unit> close(Context* ctx) {
     return ctx->fireClose();
   }
 
@@ -75,7 +75,7 @@ class Handler : public HandlerBase<HandlerContext<Rout, Wout>> {
   // inbound
   virtual void exceptionCaught(
       HandlerContext* ctx,
-      coral::exception_wrapper e) {}
+      folly::exception_wrapper e) {}
   virtual void channelRegistered(HandlerContext* ctx) {}
   virtual void channelUnregistered(HandlerContext* ctx) {}
   virtual void channelReadComplete(HandlerContext* ctx) {}
@@ -83,15 +83,15 @@ class Handler : public HandlerBase<HandlerContext<Rout, Wout>> {
   virtual void channelWritabilityChanged(HandlerContext* ctx) {}
 
   // outbound
-  virtual coral::Future<coral::Unit> bind(
+  virtual folly::Future<folly::Unit> bind(
       HandlerContext* ctx,
       SocketAddress localAddress) {}
-  virtual coral::Future<coral::Unit> connect(
+  virtual folly::Future<folly::Unit> connect(
           HandlerContext* ctx,
           SocketAddress remoteAddress, SocketAddress localAddress) {}
-  virtual coral::Future<coral::Unit> disconnect(HandlerContext* ctx) {}
-  virtual coral::Future<coral::Unit> deregister(HandlerContext* ctx) {}
-  virtual coral::Future<coral::Unit> read(HandlerContext* ctx) {}
+  virtual folly::Future<folly::Unit> disconnect(HandlerContext* ctx) {}
+  virtual folly::Future<folly::Unit> deregister(HandlerContext* ctx) {}
+  virtual folly::Future<folly::Unit> read(HandlerContext* ctx) {}
   virtual void flush(HandlerContext* ctx) {}
   */
 };
@@ -103,8 +103,8 @@ class InboundHandler : public HandlerBase<InboundHandlerContext<Rout>> {
 
   typedef Rin rin;
   typedef Rout rout;
-  typedef coral::Unit win;
-  typedef coral::Unit wout;
+  typedef folly::Unit win;
+  typedef folly::Unit wout;
   typedef InboundHandlerContext<Rout> Context;
   virtual ~InboundHandler() = default;
 
@@ -112,7 +112,7 @@ class InboundHandler : public HandlerBase<InboundHandlerContext<Rout>> {
   virtual void readEOF(Context* ctx) {
     ctx->fireReadEOF();
   }
-  virtual void readException(Context* ctx, coral::exception_wrapper e) {
+  virtual void readException(Context* ctx, folly::exception_wrapper e) {
     ctx->fireReadException(std::move(e));
   }
   virtual void transportActive(Context* ctx) {
@@ -128,15 +128,15 @@ class OutboundHandler : public HandlerBase<OutboundHandlerContext<Wout>> {
  public:
   static const HandlerDir dir = HandlerDir::OUT;
 
-  typedef coral::Unit rin;
-  typedef coral::Unit rout;
+  typedef folly::Unit rin;
+  typedef folly::Unit rout;
   typedef Win win;
   typedef Wout wout;
   typedef OutboundHandlerContext<Wout> Context;
   virtual ~OutboundHandler() = default;
 
-  virtual coral::Future<coral::Unit> write(Context* ctx, Win msg) = 0;
-  virtual coral::Future<coral::Unit> close(Context* ctx) {
+  virtual folly::Future<folly::Unit> write(Context* ctx, Win msg) = 0;
+  virtual folly::Future<folly::Unit> close(Context* ctx) {
     return ctx->fireClose();
   }
 };
@@ -150,18 +150,18 @@ class HandlerAdapter : public Handler<R, R, W, W> {
     ctx->fireRead(std::forward<R>(msg));
   }
 
-  coral::Future<coral::Unit> write(Context* ctx, W msg) override {
+  folly::Future<folly::Unit> write(Context* ctx, W msg) override {
     return ctx->fireWrite(std::forward<W>(msg));
   }
 };
 
-typedef HandlerAdapter<coral::IOBufQueue&, std::unique_ptr<coral::IOBuf>>
+typedef HandlerAdapter<folly::IOBufQueue&, std::unique_ptr<folly::IOBuf>>
 BytesToBytesHandler;
 
-typedef InboundHandler<coral::IOBufQueue&, std::unique_ptr<coral::IOBuf>>
+typedef InboundHandler<folly::IOBufQueue&, std::unique_ptr<folly::IOBuf>>
 InboundBytesToBytesHandler;
 
-typedef OutboundHandler<std::unique_ptr<coral::IOBuf>>
+typedef OutboundHandler<std::unique_ptr<folly::IOBuf>>
 OutboundBytesToBytesHandler;
 
 } // namespace wangle

@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include <coral/io/async/AsyncTransport.h>
-#include <coral/futures/Future.h>
-#include <coral/ExceptionWrapper.h>
+#include <folly/io/async/AsyncTransport.h>
+#include <folly/futures/Future.h>
+#include <folly/ExceptionWrapper.h>
 
 namespace wangle {
 
@@ -25,20 +25,20 @@ class HandlerContext {
 
   virtual void fireRead(In msg) = 0;
   virtual void fireReadEOF() = 0;
-  virtual void fireReadException(coral::exception_wrapper e) = 0;
+  virtual void fireReadException(folly::exception_wrapper e) = 0;
   virtual void fireTransportActive() = 0;
   virtual void fireTransportInactive() = 0;
 
-  virtual coral::Future<coral::Unit> fireWrite(Out msg) = 0;
-  virtual coral::Future<coral::Unit> fireClose() = 0;
+  virtual folly::Future<folly::Unit> fireWrite(Out msg) = 0;
+  virtual folly::Future<folly::Unit> fireClose() = 0;
 
   virtual PipelineBase* getPipeline() = 0;
-  std::shared_ptr<coral::AsyncTransport> getTransport() {
+  std::shared_ptr<folly::AsyncTransport> getTransport() {
     return getPipeline()->getTransport();
   }
 
-  virtual void setWriteFlags(coral::WriteFlags flags) = 0;
-  virtual coral::WriteFlags getWriteFlags() = 0;
+  virtual void setWriteFlags(folly::WriteFlags flags) = 0;
+  virtual folly::WriteFlags getWriteFlags() = 0;
 
   virtual void setReadBufferSettings(
       uint64_t minAvailable,
@@ -63,12 +63,12 @@ class InboundHandlerContext {
 
   virtual void fireRead(In msg) = 0;
   virtual void fireReadEOF() = 0;
-  virtual void fireReadException(coral::exception_wrapper e) = 0;
+  virtual void fireReadException(folly::exception_wrapper e) = 0;
   virtual void fireTransportActive() = 0;
   virtual void fireTransportInactive() = 0;
 
   virtual PipelineBase* getPipeline() = 0;
-  std::shared_ptr<coral::AsyncTransport> getTransport() {
+  std::shared_ptr<folly::AsyncTransport> getTransport() {
     return getPipeline()->getTransport();
   }
 
@@ -82,11 +82,11 @@ class OutboundHandlerContext {
  public:
   virtual ~OutboundHandlerContext() = default;
 
-  virtual coral::Future<coral::Unit> fireWrite(Out msg) = 0;
-  virtual coral::Future<coral::Unit> fireClose() = 0;
+  virtual folly::Future<folly::Unit> fireWrite(Out msg) = 0;
+  virtual folly::Future<folly::Unit> fireClose() = 0;
 
   virtual PipelineBase* getPipeline() = 0;
-  std::shared_ptr<coral::AsyncTransport> getTransport() {
+  std::shared_ptr<folly::AsyncTransport> getTransport() {
     return getPipeline()->getTransport();
   }
 };

@@ -8,13 +8,13 @@
  *
  */
 
-#include <coral/Benchmark.h>
+#include <folly/Benchmark.h>
 #include <wangle/deprecated/rx/Observer.h>
 #include <wangle/deprecated/rx/Subject.h>
 #include <gflags/gflags.h>
 
 using namespace wangle;
-using coral::BenchmarkSuspender;
+using folly::BenchmarkSuspender;
 
 static std::unique_ptr<Observer<int>> makeObserver() {
   return Observer<int>::create([&] (int x) {});
@@ -144,6 +144,6 @@ BENCHMARK_RELATIVE_PARAM(notifyInlineObservers, 1000);
 
 int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  coral::runBenchmarks();
+  folly::runBenchmarks();
   return 0;
 }
