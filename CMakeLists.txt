@@ -114,6 +114,7 @@ add_subdirectory(wangle/concurrent)
 add_subdirectory(wangle/service)
 add_subdirectory(wangle/ssl)
 add_subdirectory(wangle/deprecated/rx)
+add_subdirectory(wangle/example)
 
 # Link libraries
 add_library(wangle_static STATIC
