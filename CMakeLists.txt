@@ -15,14 +15,18 @@ endif()
 # Define project
 project(wangle)
 
-set(VERSION_MAJOR 13)
-set(VERSION_MINOR 0)
-set(VERSION_MICRO 0)
-set(VERSION_PATCH 0)
-
 cmake_minimum_required(VERSION 2.8.8)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake-scripts")
+
+include(GetGitRevisionDescription REQUIRED)
+git_describe(VERSION --tags --dirty=-d)
+
+#parse the version information into pieces.
+string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_PATCH "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+(.*)" "\\1" VERSION_SHA1 "${VERSION}")
 
 # http://www.cmake.org/Wiki/CMake_RPATH_handling#Mac_OS_X_and_the_RPATH
 if(APPLE)
@@ -165,3 +169,11 @@ if(GTEST_FOUND AND GMOCK_FOUND)
     add_subdirectory(wangle/deprecated/rx/test)
 endif()
 
+# build a CPack driven installer package
+include(InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
+set(CPACK_GENERATOR "TGZ")
+set(CPACK_SOURCE_GENERATOR "TGZ")
+include(CPack)
