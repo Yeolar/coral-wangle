@@ -19,14 +19,20 @@ cmake_minimum_required(VERSION 2.8.8)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake-scripts")
 
+# Set project version
 include(GetGitRevisionDescription REQUIRED)
-git_describe(VERSION --tags --dirty=-d)
+git_describe(VERSION --tags)
+message(STATUS "Project git tag: ${VERSION}")
 
-#parse the version information into pieces.
-string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1" VERSION_MAJOR "${VERSION}")
-string(REGEX REPLACE "^v[0-9]+\\.([0-9]+).*" "\\1" VERSION_MINOR "${VERSION}")
-string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VERSION_PATCH "${VERSION}")
-string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+(.*)" "\\1" VERSION_SHA1 "${VERSION}")
+string(REGEX REPLACE "^v([0-9]+)\\..*" "\\1"
+    VERSION_MAJOR "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.([0-9]+).*" "\\1"
+    VERSION_MINOR "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1"
+    VERSION_PATCH "${VERSION}")
+string(REGEX REPLACE "^v[0-9]+\\.[0-9]+\\.[0-9]+(.*)" "\\1"
+    VERSION_SHA1 "${VERSION}")
+message(STATUS "Project version: ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 # http://www.cmake.org/Wiki/CMake_RPATH_handling#Mac_OS_X_and_the_RPATH
 if(APPLE)
